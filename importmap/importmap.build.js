@@ -6,10 +6,10 @@
 inject(
   {
     imports: {
-      "@scalable.software/component.template": "../dist/index.js",
+      "@scalable.software/localizer": "../dist/index.js",
       "@scalable.software/component":
         "../node_modules/@scalable.software/component/dist/index.js",
     },
   },
-  "importmap"
+  "importmap",
 );

@@ -1,9 +1,9 @@
 {
-  "name": "@scalable.software/component.template",
+  "name": "@scalable.software/localizer",
   "version": "0.0.1",
-  "description": "A template for creating web components using Scalable.Software standards and practices.",
+  "description": "A localization addon for web components using Scalable.Software standards and practices.",
   "keywords": [
-    "web component"
+    "web component localization addon"
   ],
   "exports": {
     ".": {
@@ -26,14 +26,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scalable-software/component.template.git"
+    "url": "git+https://github.com/scalable-software/localizer.git"
   },
   "author": "Scalable.Software",
   "license": "CC-BY-NC-SA-4.0",
   "bugs": {
-    "url": "https://github.com/scalable-software/component.template/issues"
+    "url": "https://github.com/scalable-software/localizer/issues"
   },
-  "homepage": "https://github.com/scalable-software/component.template#readme",
+  "homepage": "https://github.com/scalable-software/localizer#readme",
   "devDependencies": {
     "@types/jasmine": "^5.1.4",
     "@web/dev-server": "^0.4.6",

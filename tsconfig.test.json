@@ -7,7 +7,7 @@
     "inlineSources": true,
     "baseUrl": "./",
     "paths": {
-      "@scalable.software/component.template": ["./src/index.js"]
+      "@scalable.software/localizer": ["./src/index.js"]
     },
     "declaration": false
   },
@@ -25,7 +25,7 @@
     "disableSources": true,
     "categorizeByGroup": false,
     "sort": ["static-first", "visibility"],
-    "name": "Web Component",
+    "name": "Web Component Localization Addon",
     "plugin": ["typedoc-plugin-merge-modules"],
     "mergeModulesMergeMode": "module",
     "hideGenerator": true

@@ -1,4 +1,4 @@
-import { ComponentTemplate } from "@scalable.software/component.template";
+import { ComponentTemplate } from "@scalable.software/localizer";
 
 await ComponentTemplate.Template.load("component.template.html");
 

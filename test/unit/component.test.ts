@@ -4,7 +4,7 @@ import {
   ComponentTemplate as Component,
   Tag,
   Attributes,
-} from "@scalable.software/component.template";
+} from "@scalable.software/localizer";
 
 configuration("Tag", () => {
   and("Component imported", () => {
@@ -68,7 +68,7 @@ composition("Template", () => {
       let template: HTMLTemplateElement;
       beforeEach(async () => {
         template = (await Component.Template.load(
-          "component.template.html"
+          "component.template.html",
         )) as HTMLTemplateElement;
       });
       afterEach(() => {

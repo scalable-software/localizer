@@ -12,6 +12,7 @@ declare function operation(operation: string, fn: () => void): void;
 declare function events(event: string, fn: () => void): void;
 declare function gesture(gesture: string, fn: () => void): void;
 declare function metadata(metadata: string, fn: () => void): void;
+declare function data(data: string, fn: () => void): void;
 
 // utility functions for testing web components
 declare function define(tag: string, component: any): void;

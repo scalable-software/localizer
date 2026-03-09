@@ -1,11 +1,101 @@
 {
-  "Component": "<Class>",
-  "Package": "<Package>",
-  "Description": "<Description>",
-  "Tag": "<Tag>",
-  "Composition": {},
-  "States": {},
-  "Operations": {},
-  "Events": {},
-  "Gestures": {}
+  "Component": "Localizer",
+  "Package": "localizer",
+  "Description": "The Localizer is a utility class that stores localized bundles, resolves the active localization from the current language, listens to global application configuration changes, and emits an event when the language changes.",
+  "States": {
+    "language": {
+      "type": "Language",
+      "description": "Indicates the currently requested language of the Localizer. The value defaults to the browser language at instantiation. Setting the language updates the internal state and triggers the 'onlanguagechange' event when the value changes.",
+      "values": [
+        "Any valid BCP 47 language tag, e.g. 'en', 'en-US', 'de', 'de-DE'"
+      ],
+      "default": "navigator.language",
+      "attribute": {
+        "optional": false,
+        "readonly": false,
+        "initialize": true
+      }
+    },
+    "initialized": {
+      "type": "Initialization",
+      "description": "Indicates whether the Localizer is currently listening for the global application configuration change event.",
+      "values": [true, false],
+      "default": false,
+      "attribute": {
+        "optional": false,
+        "readonly": true,
+        "initialize": true
+      }
+    }
+  },
+  "Data": {
+    "localizations": {
+      "type": "LocalizationDictionary<T>",
+      "description": "A dictionary of localization bundles keyed by language. Each key maps to a nested localization object for that language.",
+      "readonly": true
+    },
+    "localization": {
+      "type": "T",
+      "description": "The resolved active localization bundle. Resolution order is: exact language, base language, English ('en'), then first available bundle.",
+      "readonly": true
+    }
+  },
+  "Operations": {
+    "initialize": {
+      "description": "Starts listening to the global 'appconfigchange' event on window. If already initialized, no change occurs.",
+      "parameters": [],
+      "returns": "void"
+    },
+    "dispose": {
+      "description": "Stops listening to the global 'appconfigchange' event on window. If not initialized, no change occurs.",
+      "parameters": [],
+      "returns": "void"
+    },
+    "setLanguage": {
+      "description": "Sets the 'language' state to the supplied value. This is a thin wrapper around the language setter.",
+      "parameters": [
+        {
+          "name": "language",
+          "type": "Language",
+          "description": "The requested language to apply to the Localizer."
+        }
+      ],
+      "returns": "void"
+    }
+  },
+  "Events": {
+    "onlanguagechange": {
+      "description": "Triggered when the Localizer language changes.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the updated language.",
+          "properties": {
+            "language": {
+              "type": "Language"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "Gestures": {
+    "appconfigchange": {
+      "description": "Updates the Localizer language when a global application configuration change event is emitted on window and contains a 'language' value in its detail payload.",
+      "triggers": {
+        "operation": "setLanguage",
+        "condition": "on window event 'appconfigchange' with detail.language defined"
+      }
+    }
+  },
+  "Resolution": {
+    "description": "Defines how the active localization bundle is resolved from the requested language.",
+    "order": [
+      "Exact language match, e.g. 'de-DE'",
+      "Base language match, e.g. 'de'",
+      "English fallback, 'en'",
+      "First available localization bundle"
+    ]
+  }
 }

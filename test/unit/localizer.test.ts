@@ -17,5 +17,9 @@ state(State.LANGUAGE, () => {
         expect(localizer.language).toBe(language);
       });
     });
+
+    then("localizer.language setter is defined", () => {
+      expect(hasSetter(localizer, "language")).toBe(true);
+    });
   });
 });

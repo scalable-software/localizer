@@ -10,3 +10,5 @@ export {
 } from "./component.meta.js";
 
 export { ComponentTemplate } from "./component.js";
+
+export { Localizer } from "./localizer.js";

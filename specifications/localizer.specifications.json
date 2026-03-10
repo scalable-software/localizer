@@ -1,0 +1,9 @@
+{
+  "Component": "Localizer",
+  "Package": "localizer",
+  "Description": "The Localizer is a utility class that stores localized bundles, resolves the active localization from the current language, listens to global application configuration changes, and emits an event when the language changes.",
+  "States": {},
+  "Operations": {},
+  "Events": {},
+  "Gestures": {}
+}

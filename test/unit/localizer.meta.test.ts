@@ -1,4 +1,4 @@
-import { State, Operation } from "@scalable.software/localizer";
+import { State, Operation, Event } from "@scalable.software/localizer";
 
 metadata("States", () => {
   and("State imported", () => {
@@ -35,6 +35,20 @@ metadata("Operations", () => {
         then("Operation has SET_LANGUAGE property", () => {
           expect(Operation.SET_LANGUAGE).toBe("setLanguage");
         });
+      });
+    });
+  });
+});
+
+metadata("Events", () => {
+  and("Event imported", () => {
+    then("Event is defined", () => {
+      expect(Event).toBeDefined();
+    });
+
+    when("Event is defined", () => {
+      then("Event is an object", () => {
+        expect(typeof Event).toBe("object");
       });
     });
   });

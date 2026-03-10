@@ -25,3 +25,15 @@ export const Operation = {
  * @category Metadata: Operations
  */
 export type Operation = (typeof Operation)[keyof typeof Operation];
+
+/**
+ * @category Metadata: Events
+ * @enum
+ */
+export const Event = {
+  ON_LANGUAGE_CHANGE: "onLanguageChange",
+} as const;
+/**
+ * @category Metadata: Events
+ */
+export type Event = (typeof Event)[keyof typeof Event];

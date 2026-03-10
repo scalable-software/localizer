@@ -7,6 +7,7 @@ declare function then(description: string, fn: () => void): void;
 declare function configuration(configuration: string, fn: () => void): void;
 declare function utility(utility: string, fn: () => void): void;
 declare function composition(composition: string, fn: () => void): void;
+declare function data(data: string, fn: () => void): void;
 declare function state(state: string, fn: () => void): void;
 declare function operation(operation: string, fn: () => void): void;
 declare function events(event: string, fn: () => void): void;

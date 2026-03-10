@@ -84,6 +84,16 @@ globalThis.metadata = (metadata, spec) => {
     spec();
   });
 };
+globalThis.data = (data, spec) => {
+  describe(`Data.${data} test`, () => {
+    beforeEach(() => {
+      setSpecProperty("type", "Data");
+      setSpecProperty("spec", data);
+    });
+
+    spec();
+  });
+};
 
 // Helper functions for testing
 const create = (tag) => document.createElement(tag);
@@ -94,7 +104,7 @@ globalThis.define = (tag, component) =>
 
 globalThis.add = (tag, attributes) =>
   append(
-    attributes != null ? setAttributes(create(tag), attributes) : create(tag)
+    attributes != null ? setAttributes(create(tag), attributes) : create(tag),
   );
 
 globalThis.remove = (id) => document.getElementById(id).remove();

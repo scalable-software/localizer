@@ -10,5 +10,12 @@ state(State.LANGUAGE, () => {
     then("localizer.language is defined", () => {
       expect(localizer.language).toBeDefined();
     });
+
+    and("localizer.language is defined", () => {
+      then("localizer.language match language of the browser", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
   });
 });

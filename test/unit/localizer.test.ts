@@ -47,5 +47,18 @@ operation(Operation.SET_LANGUAGE, () => {
     then("localizer.setLanguage method is defined", () => {
       expect(localizer.setLanguage).toBeDefined();
     });
+
+    and("localizer.setLanguage method is defined", () => {
+      when("localizer.setLanguage is called with language", () => {
+        let language: string;
+        beforeEach(() => {
+          language = "de";
+          localizer.setLanguage(language);
+        });
+        then("localizer.language is set to language", () => {
+          expect(localizer.language).toBe(language);
+        });
+      });
+    });
   });
 });

@@ -12,3 +12,14 @@ export const State = {
  * @category Metadata: State
  */
 export type State = (typeof State)[keyof typeof State];
+
+/**
+ * @category Metadata: Operations
+ * @enum
+ */
+export const Operation = {} as const;
+
+/**
+ * @category Metadata: Operations
+ */
+export type Operation = (typeof Operation)[keyof typeof Operation];

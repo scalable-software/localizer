@@ -10,6 +10,12 @@ metadata("States", () => {
       then("State is an object", () => {
         expect(typeof State).toBe("object");
       });
+
+      and("State is an object", () => {
+        then("State has LANGUAGE property", () => {
+          expect(State.LANGUAGE).toBe("language");
+        });
+      });
     });
   });
 });

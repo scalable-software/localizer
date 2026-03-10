@@ -21,7 +21,7 @@ export class Localizer<T extends object> extends EventTarget {
     return this._language;
   }
   public set language(language: string) {
-    if (!language) return;
+    if (!language || this._language === language) return;
 
     this._language = language;
 

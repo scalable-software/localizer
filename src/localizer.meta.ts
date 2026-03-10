@@ -3,7 +3,9 @@
  * @category Metadata: State
  * @enum
  */
-export const State = {} as const;
+export const State = {
+  LANGUAGE: "language",
+} as const;
 
 /**
  * HTML Attributes available to set

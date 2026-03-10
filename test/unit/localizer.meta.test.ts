@@ -30,6 +30,12 @@ metadata("Operations", () => {
       then("Operation is an object", () => {
         expect(typeof Operation).toBe("object");
       });
+
+      and("Operation is an object", () => {
+        then("Operation has SET_LANGUAGE property", () => {
+          expect(Operation.SET_LANGUAGE).toBe("setLanguage");
+        });
+      });
     });
   });
 });

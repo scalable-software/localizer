@@ -50,6 +50,12 @@ metadata("Events", () => {
       then("Event is an object", () => {
         expect(typeof Event).toBe("object");
       });
+
+      and("Event is an object", () => {
+        then("Event has ON_LANGUAGE_CHANGE property", () => {
+          expect(Event.ON_LANGUAGE_CHANGE).toBe("onLanguageChange");
+        });
+      });
     });
   });
 });

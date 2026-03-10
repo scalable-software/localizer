@@ -33,7 +33,16 @@ export class Localizer<T extends object> extends EventTarget {
   }
 
   public set onlanguagechange(handler: Handler) {
+    this._onlanguagechange &&
+      this.removeEventListener(
+        Event.ON_LANGUAGE_CHANGE,
+        this._onlanguagechange,
+      );
+
     this._onlanguagechange = handler;
+
+    this._onlanguagechange &&
+      this.addEventListener(Event.ON_LANGUAGE_CHANGE, this._onlanguagechange);
   }
 
   public setLanguage = (language: string) => (this.language = language);

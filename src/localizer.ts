@@ -73,7 +73,7 @@ export class Localizer<T extends object> extends EventTarget {
     super();
 
     this.localizations = localizations;
-    this._language = language;
+    this._language = this._normalizeLanguage(language);
   }
 
   /**
@@ -99,19 +99,15 @@ export class Localizer<T extends object> extends EventTarget {
    * Get the resolved localization bundle
    *
    * Resolution order:
-   * 1. exact language
-   * 2. base language
-   * 3. English
-   * 4. first available bundle
+   * 1. normalized language key
+   * 2. English
+   * 3. first available bundle
    *
    * @category Data
    */
   public get localization(): T {
-    const exact = this.localizations[this.language];
-    if (exact) return exact;
-
-    const base = this.localizations[this._baseLanguage(this.language)];
-    if (base) return base;
+    const direct = this.localizations[this.language];
+    if (direct) return direct;
 
     const english = this.localizations.en;
     if (english) return english;
@@ -177,7 +173,8 @@ export class Localizer<T extends object> extends EventTarget {
    * Set the language of the Localizer
    * @category Operations
    */
-  public setLanguage = (language: string) => (this.language = language);
+  public setLanguage = (language: string) =>
+    (this.language = this._normalizeLanguage(language));
 
   /**
    * Handle application configuration changes
@@ -187,14 +184,15 @@ export class Localizer<T extends object> extends EventTarget {
   protected _handleAppConfigChange = (event: Event): void => {
     const { detail } = event as CustomEvent<AppConfigChangeDetail>;
 
-    detail?.language && (this.language = detail.language);
+    detail?.language &&
+      (this.language = this._normalizeLanguage(detail.language));
   };
 
   /**
-   * Extract base language from locale
+   * Normalize a language or locale to a base language key
    * @category Utility
    * @hidden
    */
-  protected _baseLanguage = (language: string): string =>
-    language.split("-")[0];
+  protected _normalizeLanguage = (language?: string): string =>
+    (language || navigator.language).split("-")[0].toLowerCase();
 }

@@ -59,7 +59,7 @@ configuration("Instantiation", () => {
     let localizer: Localizer<Localization>;
 
     beforeEach(() => {
-      localizer = new Localizer(localizations, "de");
+      localizer = new Localizer(localizations, "de-DE");
     });
 
     then("localizer is defined", () => {
@@ -70,8 +70,36 @@ configuration("Instantiation", () => {
       expect(localizer).toBeInstanceOf(EventTarget);
     });
 
-    then("localizer.language is constructor language", () => {
+    then("localizer.language is normalized from constructor language", () => {
       expect(localizer.language).toBe("de");
+    });
+  });
+
+  and("constructor receives a normalized language", () => {
+    let localizer: Localizer<Localization>;
+
+    beforeEach(() => {
+      localizer = new Localizer(localizations, "en");
+    });
+
+    then("localizer.language stores the provided value", () => {
+      expect(localizer.language).toBe("en");
+    });
+  });
+
+  and("constructor language is omitted", () => {
+    let localizer: Localizer<Localization>;
+
+    beforeEach(() => {
+      spyOnProperty(window.navigator, "language", "get").and.returnValue(
+        "en-US",
+      );
+
+      localizer = new Localizer(localizations);
+    });
+
+    then("localizer.language uses normalized navigator.language", () => {
+      expect(localizer.language).toBe("en");
     });
   });
 });
@@ -127,12 +155,12 @@ events("ON_LANGUAGE_CHANGE", () => {
         expect(count).toBe(1);
       });
 
-      then("event detail contains updated language", () => {
+      then("event detail contains assigned language", () => {
         expect(detailLanguage).toBe("de");
       });
     });
 
-    and("language is set to same value", () => {
+    and("language is set to the current value", () => {
       beforeEach(() => {
         localizer.language = "en";
       });
@@ -145,26 +173,14 @@ events("ON_LANGUAGE_CHANGE", () => {
 });
 
 data("localization", () => {
-  and("a localizer is instantiated with exact language match", () => {
-    let localizer: Localizer<Localization>;
-
-    beforeEach(() => {
-      localizer = new Localizer(localizations, "de");
-    });
-
-    then("exact localization bundle is returned", () => {
-      expect(localizer.localization).toBe(localizations.de);
-    });
-  });
-
-  and("a localizer is instantiated with regional language", () => {
+  and("a localizer is instantiated with a normalized language key", () => {
     let localizer: Localizer<Localization>;
 
     beforeEach(() => {
       localizer = new Localizer(localizations, "de-DE");
     });
 
-    then("base language localization bundle is returned", () => {
+    then("the normalized localization bundle is returned", () => {
       expect(localizer.localization).toBe(localizations.de);
     });
   });
@@ -173,11 +189,50 @@ data("localization", () => {
     let localizer: Localizer<Localization>;
 
     beforeEach(() => {
-      localizer = new Localizer(localizations, "fr");
+      localizer = new Localizer(localizations, "fr-FR");
     });
 
     then("english localization bundle is returned", () => {
       expect(localizer.localization).toBe(localizations.en);
+    });
+  });
+
+  and("english is unavailable", () => {
+    let localizer: Localizer<Localization>;
+
+    const nonEnglishLocalizations: LocalizationDictionary<Localization> = {
+      de: localizations.de,
+      fr: {
+        placeholder: {
+          title: "Nom du parcours clinique",
+        },
+        action: {
+          save: "Enregistrer",
+          cancel: "Annuler",
+        },
+      },
+    };
+
+    beforeEach(() => {
+      localizer = new Localizer(nonEnglishLocalizations, "es-ES");
+    });
+
+    then("the first available localization bundle is returned", () => {
+      expect(localizer.localization).toBe(localizations.de);
+    });
+  });
+
+  and("no localization bundles are available", () => {
+    let localizer: Localizer<Localization>;
+
+    beforeEach(() => {
+      localizer = new Localizer({}, "en-US");
+    });
+
+    then("reading localization throws", () => {
+      expect(() => localizer.localization).toThrowError(
+        "Localizer: no localization bundles are available.",
+      );
     });
   });
 });
@@ -198,15 +253,25 @@ operation("setLanguage", () => {
 
     and("setLanguage is called", () => {
       beforeEach(() => {
-        localizer.setLanguage("de");
+        localizer.setLanguage("de-DE");
       });
 
-      then("language is updated", () => {
+      then("language is normalized and updated", () => {
         expect(localizer.language).toBe("de");
       });
 
       then("language change event is emitted", () => {
         expect(count).toBe(1);
+      });
+    });
+
+    and("setLanguage normalizes to the current value", () => {
+      beforeEach(() => {
+        localizer.setLanguage("en-US");
+      });
+
+      then("language change event is not emitted", () => {
+        expect(count).toBe(0);
       });
     });
   });
@@ -216,13 +281,17 @@ operation("initialize", () => {
   and("a localizer is instantiated", () => {
     let localizer: Localizer<Localization>;
     let count = 0;
+    let detailLanguage: string | undefined;
 
     beforeEach(() => {
       count = 0;
+      detailLanguage = undefined;
 
       localizer = new Localizer(localizations, "en");
-      localizer.onlanguagechange = () => {
+      localizer.onlanguagechange = (event: Event) => {
         count += 1;
+        detailLanguage = (event as CustomEvent<{ language: string }>).detail
+          .language;
       };
     });
 
@@ -239,17 +308,21 @@ operation("initialize", () => {
         beforeEach(() => {
           window.dispatchEvent(
             new CustomEvent(LocalizerGesture.APP_CONFIG_CHANGE, {
-              detail: { language: "de" },
+              detail: { language: "de-DE" },
             }),
           );
         });
 
-        then("language is updated from app config event", () => {
+        then("language is normalized from app config event", () => {
           expect(localizer.language).toBe("de");
         });
 
         then("language change event is emitted", () => {
           expect(count).toBe(1);
+        });
+
+        then("language change event detail is normalized", () => {
+          expect(detailLanguage).toBe("de");
         });
       });
     });

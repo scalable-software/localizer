@@ -5,11 +5,9 @@
   "States": {
     "language": {
       "type": "Language",
-      "description": "Indicates the currently requested language of the Localizer. The value defaults to the browser language at instantiation. Setting the language updates the internal state and triggers the 'onlanguagechange' event when the value changes.",
-      "values": [
-        "Any valid BCP 47 language tag, e.g. 'en', 'en-US', 'de', 'de-DE'"
-      ],
-      "default": "navigator.language",
+      "description": "Indicates the normalized base language key currently used to resolve localization bundles. The value defaults to the normalized browser language at instantiation. Assigning the language expects a normalized base language key, updates the internal state, and triggers the 'onlanguagechange' event when the value changes.",
+      "values": ["Normalized base language keys, e.g. 'en', 'de', 'fr'"],
+      "default": "normalized navigator.language",
       "attribute": {
         "optional": false,
         "readonly": false,
@@ -36,7 +34,7 @@
     },
     "localization": {
       "type": "T",
-      "description": "The resolved active localization bundle. Resolution order is: exact language, base language, English ('en'), then first available bundle.",
+      "description": "The resolved active localization bundle. Resolution order is: normalized language key, English ('en'), then first available bundle.",
       "readonly": true
     }
   },
@@ -52,12 +50,12 @@
       "returns": "void"
     },
     "setLanguage": {
-      "description": "Sets the 'language' state to the supplied value. This is a thin wrapper around the language setter.",
+      "description": "Normalizes the supplied language and applies the normalized value to the 'language' state.",
       "parameters": [
         {
           "name": "language",
           "type": "Language",
-          "description": "The requested language to apply to the Localizer."
+          "description": "The language or locale to normalize and apply to the Localizer."
         }
       ],
       "returns": "void"
@@ -65,12 +63,12 @@
   },
   "Events": {
     "onlanguagechange": {
-      "description": "Triggered when the Localizer language changes.",
+      "description": "Triggered when the Localizer language changes. The emitted detail contains the normalized base language key currently assigned to the Localizer.",
       "parameters": [
         {
           "name": "detail",
           "type": "object",
-          "description": "Contains the updated language.",
+          "description": "Contains the updated normalized base language key.",
           "properties": {
             "language": {
               "type": "Language"
@@ -82,7 +80,7 @@
   },
   "Gestures": {
     "appconfigchange": {
-      "description": "Updates the Localizer language when a global application configuration change event is emitted on window and contains a 'language' value in its detail payload.",
+      "description": "Updates the Localizer language when a global application configuration change event is emitted on window and contains a 'language' value in its detail payload. Incoming language values are normalized before they are assigned to the Localizer.",
       "triggers": {
         "operation": "setLanguage",
         "condition": "on window event 'appconfigchange' with detail.language defined"
@@ -90,10 +88,9 @@
     }
   },
   "Resolution": {
-    "description": "Defines how the active localization bundle is resolved from the requested language.",
+    "description": "Defines how the active localization bundle is resolved from the normalized language key.",
     "order": [
-      "Exact language match, e.g. 'de-DE'",
-      "Base language match, e.g. 'de'",
+      "Normalized language key, e.g. 'de'",
       "English fallback, 'en'",
       "First available localization bundle"
     ]

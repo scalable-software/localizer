@@ -7,7 +7,7 @@ state(State.LANGUAGE, () => {
       localizer = new Localizer();
     });
 
-    then("localizer.language is defined", () => {
+    then("localizer.language getter is defined", () => {
       expect(localizer.language).toBeDefined();
     });
 

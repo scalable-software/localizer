@@ -11,7 +11,7 @@ state(State.LANGUAGE, () => {
       expect(localizer.language).toBeDefined();
     });
 
-    and("localizer.language is defined", () => {
+    and("localizer.language getter is defined", () => {
       then("localizer.language match language of the browser", () => {
         const language = navigator.language.split("-")[0].toLowerCase();
         expect(localizer.language).toBe(language);

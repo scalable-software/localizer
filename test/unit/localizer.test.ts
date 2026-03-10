@@ -59,6 +59,18 @@ operation(Operation.SET_LANGUAGE, () => {
           expect(localizer.language).toBe(language);
         });
       });
+
+      when("localizer.setLanguage is called with no language", () => {
+        let language: string;
+        beforeEach(() => {
+          language = null as unknown as string;
+          localizer.setLanguage(language);
+        });
+        then("localizer.language is not changed", () => {
+          const language = navigator.language.split("-")[0].toLowerCase();
+          expect(localizer.language).toBe(language);
+        });
+      });
     });
   });
 });

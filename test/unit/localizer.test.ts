@@ -115,6 +115,18 @@ events(Event.ON_LANGUAGE_CHANGE, () => {
           });
         });
 
+        when("localizer.language is set to existing language", () => {
+          let language: string;
+          beforeEach(() => {
+            language = localizer.language;
+            localizer.language = language;
+          });
+
+          then("handler is not called", () => {
+            expect(handler).not.toHaveBeenCalled();
+          });
+        });
+
         and("localizer.onlanguagechange is set to handler2", () => {
           let handler2: jasmine.Spy;
           beforeEach(() => {

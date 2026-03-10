@@ -1,4 +1,4 @@
-import { State } from "@scalable.software/localizer";
+import { State, Operation } from "@scalable.software/localizer";
 
 metadata("States", () => {
   and("State imported", () => {
@@ -15,6 +15,20 @@ metadata("States", () => {
         then("State has LANGUAGE property", () => {
           expect(State.LANGUAGE).toBe("language");
         });
+      });
+    });
+  });
+});
+
+metadata("Operations", () => {
+  and("Operation imported", () => {
+    then("Operation is defined", () => {
+      expect(Operation).toBeDefined();
+    });
+
+    when("Operation is defined", () => {
+      then("Operation is an object", () => {
+        expect(typeof Operation).toBe("object");
       });
     });
   });

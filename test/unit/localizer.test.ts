@@ -1,4 +1,9 @@
-import { Localizer, State, Operation } from "@scalable.software/localizer";
+import {
+  Localizer,
+  State,
+  Operation,
+  Event,
+} from "@scalable.software/localizer";
 
 state(State.LANGUAGE, () => {
   given("Localizer instantiated", () => {
@@ -71,6 +76,19 @@ operation(Operation.SET_LANGUAGE, () => {
           expect(localizer.language).toBe(language);
         });
       });
+    });
+  });
+});
+
+events(Event.ON_LANGUAGE_CHANGE, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer();
+    });
+
+    then("localizer.onlanguagechange setter is defined", () => {
+      expect(hasSetter(localizer, "onlanguagechange")).toBe(true);
     });
   });
 });

@@ -17,7 +17,9 @@ export type State = (typeof State)[keyof typeof State];
  * @category Metadata: Operations
  * @enum
  */
-export const Operation = {} as const;
+export const Operation = {
+  SET_LANGUAGE: "setLanguage",
+} as const;
 
 /**
  * @category Metadata: Operations

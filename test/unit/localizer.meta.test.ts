@@ -1,4 +1,22 @@
-import { State, Operation, Event } from "@scalable.software/localizer";
+import { Data, State, Operation, Event } from "@scalable.software/localizer";
+
+metadata("Data", () => {
+  and("Data imported", () => {
+    then("Data is defined", () => {
+      expect(Data).toBeDefined();
+    });
+    when("Data is defined", () => {
+      then("Data is an object", () => {
+        expect(typeof Data).toBe("object");
+      });
+      and("Data is an object", () => {
+        then("Data has LOCALIZATIONS property", () => {
+          expect(Data.LOCALIZATIONS).toBe("localizations");
+        });
+      });
+    });
+  });
+});
 
 metadata("States", () => {
   and("State imported", () => {
@@ -14,6 +32,10 @@ metadata("States", () => {
       and("State is an object", () => {
         then("State has LANGUAGE property", () => {
           expect(State.LANGUAGE).toBe("language");
+        });
+
+        then("State has LEXICON property", () => {
+          expect(State.LEXICON).toBe("lexicon");
         });
       });
     });

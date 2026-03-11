@@ -26,6 +26,7 @@ export type State = (typeof State)[keyof typeof State];
  */
 export const Operation = {
   INITIALIZE: "initialize",
+  DISPOSE: "dispose",
   SET_LANGUAGE: "setLanguage",
 } as const;
 

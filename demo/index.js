@@ -1,5 +1,10 @@
-import { ComponentTemplate } from "@scalable.software/localizer";
+import { Localizer } from "@scalable.software/localizer";
 
-await ComponentTemplate.Template.load("component.template.html");
+const localizations = {
+	en: { greeting: "Hello" },
+	de: { greeting: "Hallo" },
+};
 
-customElements.define(ComponentTemplate.Tag, ComponentTemplate);
+const localizer = new Localizer(localizations, "de");
+
+console.log(localizer.lexicon.greeting);

@@ -1,9 +1,3 @@
-export { type Configuration } from "@scalable.software/component";
-
-export { Tag, Attributes } from "./component.meta.js";
-
-export { ComponentTemplate } from "./component.js";
-
 export {
   Data,
   State,

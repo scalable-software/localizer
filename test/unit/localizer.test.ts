@@ -189,6 +189,19 @@ operation(Operation.INITIALIZE, () => {
   });
 });
 
+operation(Operation.DISPOSE, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({});
+    });
+
+    then("localizer.dispose method is defined", () => {
+      expect(localizer.dispose).toBeDefined();
+    });
+  });
+});
+
 operation(Operation.SET_LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;

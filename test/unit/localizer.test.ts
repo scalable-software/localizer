@@ -67,6 +67,17 @@ state(State.LANGUAGE, () => {
       });
     });
   });
+
+  given("Localizer instantiated with language", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, "de");
+    });
+
+    then("localizer.language is set to language", () => {
+      expect(localizer.language).toBe("de");
+    });
+  });
 });
 
 state(State.LEXICON, () => {

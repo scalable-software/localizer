@@ -1,3 +1,9 @@
+export const Data = {
+  LOCALIZATIONS: "localizations",
+} as const;
+
+export type Data = (typeof Data)[keyof typeof Data];
+
 /**
  * HTML Attributes available to set
  * @category Metadata: State
@@ -37,3 +43,5 @@ export const Event = {
  * @category Metadata: Events
  */
 export type Event = (typeof Event)[keyof typeof Event];
+
+export type Localizations<T extends object> = Record<string, T | undefined>;

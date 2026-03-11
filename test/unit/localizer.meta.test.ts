@@ -1,4 +1,10 @@
-import { Data, State, Operation, Event } from "@scalable.software/localizer";
+import {
+  Data,
+  State,
+  Operation,
+  Event,
+  Gesture,
+} from "@scalable.software/localizer";
 
 metadata("Data", () => {
   and("Data imported", () => {
@@ -75,7 +81,7 @@ metadata("Events", () => {
 
       and("Event is an object", () => {
         then("Event has ON_LANGUAGE_CHANGE property", () => {
-          expect(Event.ON_LANGUAGE_CHANGE).toBe("onLanguageChange");
+          expect(Event.ON_LANGUAGE_CHANGE).toBe("onlanguagechange");
         });
       });
     });

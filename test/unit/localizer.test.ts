@@ -87,6 +87,18 @@ state(State.LEXICON, () => {
       then("localizer.lexicon getter is defined", () => {
         expect(localizer.lexicon).toBeDefined();
       });
+
+      and("localizer.setLanguage called with existing language", () => {
+        let language: string;
+        beforeEach(() => {
+          language = "de";
+          localizer.setLanguage(language);
+        });
+
+        then("localizer.lexicon is lexicon for language", () => {
+          expect(localizer.lexicon).toBe(localizations[language]);
+        });
+      });
     });
   });
 });

@@ -173,6 +173,19 @@ operation(Operation.INITIALIZE, () => {
     then("localizer.initialize method is defined", () => {
       expect(localizer.initialize).toBeDefined();
     });
+
+    then("localizer._initialized is false", () => {
+      expect(localizer["_initialized"]).toBe(false);
+    });
+
+    when("localizer.initialize is called", () => {
+      beforeEach(() => {
+        localizer.initialize();
+      });
+      then("localizer._initialized is true", () => {
+        expect(localizer["_initialized"]).toBe(true);
+      });
+    });
   });
 });
 

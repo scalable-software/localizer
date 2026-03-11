@@ -1,15 +1,41 @@
 import {
   Localizer,
+  Data,
   State,
   Operation,
   Event,
 } from "@scalable.software/localizer";
 
+import { type Localizations } from "@scalable.software/localizer";
+
+data(Data.LOCALIZATIONS, () => {
+  given("Localizations defined", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {
+        en: { greeting: "Hello" },
+        de: { greeting: "Hallo" },
+      };
+    });
+
+    and("localizer instantiated with localizations", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations);
+      });
+
+      then("localizer.localizations is localizations", () => {
+        expect(localizer["localizations"]).toBe(localizations);
+      });
+    });
+  });
+});
+
 state(State.LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer();
+      localizer = new Localizer({});
     });
 
     then("localizer.language getter is defined", () => {
@@ -46,7 +72,7 @@ operation(Operation.SET_LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer();
+      localizer = new Localizer({});
     });
 
     then("localizer.setLanguage method is defined", () => {
@@ -84,7 +110,7 @@ events(Event.ON_LANGUAGE_CHANGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer();
+      localizer = new Localizer({});
     });
 
     then("localizer.onlanguagechange setter is defined", () => {

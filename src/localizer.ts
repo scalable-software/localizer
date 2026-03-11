@@ -81,7 +81,10 @@ export class Localizer<T extends object> extends EventTarget {
     this._initialized = true;
   };
 
-  public dispose = () => {};
+  public dispose = () => {
+    if (!this._initialized) return;
+    this._initialized = false;
+  };
 
   public setLanguage = (language: string) => (this.language = language);
 

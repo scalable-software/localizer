@@ -1,4 +1,17 @@
-import { State, Operation, Event } from "@scalable.software/localizer";
+import { Data, State, Operation, Event } from "@scalable.software/localizer";
+
+metadata("Data", () => {
+  and("Data imported", () => {
+    then("Data is defined", () => {
+      expect(Data).toBeDefined();
+    });
+    when("Data is defined", () => {
+      then("Data is an object", () => {
+        expect(typeof Data).toBe("object");
+      });
+    });
+  });
+});
 
 metadata("States", () => {
   and("State imported", () => {

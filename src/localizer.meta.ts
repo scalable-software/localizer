@@ -11,6 +11,7 @@ export type Data = (typeof Data)[keyof typeof Data];
  */
 export const State = {
   LANGUAGE: "language",
+  LEXICON: "lexicon",
 } as const;
 
 /**

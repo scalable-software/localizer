@@ -67,6 +67,10 @@ metadata("Operations", () => {
         then("Operation has INITIALIZE property", () => {
           expect(Operation.INITIALIZE).toBe("initialize");
         });
+
+        then("Operation has DISPOSE property", () => {
+          expect(Operation.DISPOSE).toBe("dispose");
+        });
       });
     });
   });

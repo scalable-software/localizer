@@ -87,3 +87,17 @@ metadata("Events", () => {
     });
   });
 });
+
+metadata("Gesures", () => {
+  and("Gesture imported", () => {
+    then("Gesture is defined", () => {
+      expect(Gesture).toBeDefined();
+    });
+
+    when("Gesture is defined", () => {
+      then("Gesture is an object", () => {
+        expect(typeof Gesture).toBe("object");
+      });
+    });
+  });
+});

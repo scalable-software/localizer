@@ -13,8 +13,6 @@ export class Localizer<T extends object> extends EventTarget {
 
   private _onlanguagechange: Handler = null;
 
-  private _onappconfigchange: Handler = null;
-
   protected localizations: Localizations<T> = {};
 
   constructor(localizations: Localizations<T>) {
@@ -78,15 +76,39 @@ export class Localizer<T extends object> extends EventTarget {
 
   public initialize = () => {
     if (this._initialized) return;
+    this._addEventListeners();
     this._initialized = true;
   };
 
   public dispose = () => {
     if (!this._initialized) return;
+    this._removeEventListeners();
     this._initialized = false;
   };
 
   public setLanguage = (language: string) => (this.language = language);
+
+  protected _addEventListeners = () =>
+    window.addEventListener(
+      Gesture.ON_APP_CONFIG_CHANGE,
+      this._handleAppConfigChange,
+    );
+
+  protected _removeEventListeners = () =>
+    window.removeEventListener(
+      Gesture.ON_APP_CONFIG_CHANGE,
+      this._handleAppConfigChange,
+    );
+
+  private _handleAppConfigChange = (
+    event: CustomEvent<{ language?: string }>,
+  ): void => {
+    const { detail } = event;
+
+    if (!detail?.language) return;
+
+    this.language = detail.language;
+  };
 
   private _normalize = (locale: string) => locale.split("-")[0].toLowerCase();
 }

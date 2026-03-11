@@ -99,6 +99,17 @@ state(State.LEXICON, () => {
           expect(localizer.lexicon).toBe(localizations[language]);
         });
       });
+      and("localizer.setLanguage called with non-existing language", () => {
+        let language: string;
+        beforeEach(() => {
+          language = "fr";
+          localizer.setLanguage(language);
+        });
+
+        then("localizer.lexicon is lexicon for 'en'", () => {
+          expect(localizer.lexicon).toBe(localizations.en);
+        });
+      });
     });
   });
 });

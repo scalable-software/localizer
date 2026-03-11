@@ -45,4 +45,14 @@ export const Event = {
  */
 export type Event = (typeof Event)[keyof typeof Event];
 
+/**
+ * @category Metadata: Gesture
+ * @enum
+ */
+export const Gesture = {} as const;
+/**
+ * @category Metadata: Gesture
+ */
+export type Gesture = (typeof Gesture)[keyof typeof Gesture];
+
 export type Localizations<T extends object> = Record<string, T | undefined>;

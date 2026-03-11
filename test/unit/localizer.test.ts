@@ -68,6 +68,29 @@ state(State.LANGUAGE, () => {
   });
 });
 
+state(State.LEXICON, () => {
+  given("Localizations defined", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {
+        en: { greeting: "Hello" },
+        de: { greeting: "Hallo" },
+      };
+    });
+
+    and("localizer instantiated with localizations", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations);
+      });
+
+      then("localizer.lexicon getter is defined", () => {
+        expect(localizer.lexicon).toBeDefined();
+      });
+    });
+  });
+});
+
 operation(Operation.SET_LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;

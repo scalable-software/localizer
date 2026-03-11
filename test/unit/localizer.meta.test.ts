@@ -63,6 +63,10 @@ metadata("Operations", () => {
         then("Operation has SET_LANGUAGE property", () => {
           expect(Operation.SET_LANGUAGE).toBe("setLanguage");
         });
+
+        then("Operation has INITIALIZE property", () => {
+          expect(Operation.INITIALIZE).toBe("initialize");
+        });
       });
     });
   });

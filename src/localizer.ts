@@ -21,12 +21,25 @@ export class Localizer<T extends object> extends EventTarget {
     this._language = this._normalize(navigator.language);
   }
 
+  /**
+   * Get the resolved the lexicon for a specific language bundle
+   *
+   * Resolution order:
+   * 1. localizer language
+   * 2. English
+   * 3. first available bundle
+   *
+   * @category Data
+   */
   public get lexicon(): T {
     const language = this.localizations[this.language];
     if (language) return language;
 
     const english = this.localizations.en;
     if (english) return english;
+
+    const first = Object.values(this.localizations).find(Boolean);
+    if (first) return first;
   }
 
   public get language(): string {

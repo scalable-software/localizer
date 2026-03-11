@@ -141,6 +141,26 @@ state(State.LEXICON, () => {
       });
     });
   });
+
+  given("Localizations defined without any lexicon bundle", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {};
+    });
+
+    and("localizer instantiated with localizations", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations);
+      });
+
+      then("localizer.lexicon throws error", () => {
+        expect(() => localizer.lexicon).toThrowError(
+          "Localizer: no localization bundles are available.",
+        );
+      });
+    });
+  });
 });
 
 operation(Operation.SET_LANGUAGE, () => {

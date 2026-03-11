@@ -15,12 +15,15 @@ export class Localizer<T extends object> extends EventTarget {
 
   protected localizations: Localizations<T> = {};
 
-  constructor(localizations: Localizations<T>) {
+  constructor(
+    localizations: Localizations<T>,
+    language: string = navigator.language,
+  ) {
     super();
 
     this.localizations = localizations;
 
-    this._language = this._normalize(navigator.language);
+    this._language = this._normalize(language);
   }
 
   /**

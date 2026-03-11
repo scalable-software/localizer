@@ -7,14 +7,39 @@ import { Event, Gesture, type Localizations } from "./localizer.meta.js";
  * @category Utilities
  */
 export class Localizer<T extends object> extends EventTarget {
+  /**
+   * Active normalized language code used to resolve localization bundles
+   * @category State
+   * @hidden
+   */
   private _language: string;
 
+  /**
+   * Tracks whether global event listeners have been registered
+   * @category State
+   * @default false
+   * @hidden
+   */
   private _initialized = false;
 
+  /**
+   * Handler invoked when the active language changes
+   * @category Events
+   * @hidden
+   */
   private _onlanguagechange: Handler = null;
 
+  /**
+   * Available localization bundles keyed by normalized language code
+   * @category Data
+   * @hidden
+   */
   protected localizations: Localizations<T> = {};
 
+  /**
+   * Create a localizer with the available language bundles and initial language
+   * @category Configuration
+   */
   constructor(
     localizations: Localizations<T>,
     language: string = navigator.language,
@@ -49,9 +74,18 @@ export class Localizer<T extends object> extends EventTarget {
     throw new Error("Localizer: no localization bundles are available.");
   }
 
+  /**
+   * Get the active normalized language code
+   * @category State
+   */
   public get language(): string {
     return this._language;
   }
+
+  /**
+   * Set the active language and emit `onlanguagechange` when it changes
+   * @category State
+   */
   public set language(language: string) {
     if (!language || this._language === language) return;
 
@@ -64,6 +98,11 @@ export class Localizer<T extends object> extends EventTarget {
     );
   }
 
+  /**
+   * Triggered when the active language changes
+   * @event
+   * @category Events
+   */
   public set onlanguagechange(handler: Handler) {
     this._onlanguagechange &&
       this.removeEventListener(
@@ -77,32 +116,59 @@ export class Localizer<T extends object> extends EventTarget {
       this.addEventListener(Event.ON_LANGUAGE_CHANGE, this._onlanguagechange);
   }
 
+  /**
+   * Register global listeners required to keep the localizer in sync
+   * @category Operations
+   */
   public initialize = () => {
     if (this._initialized) return;
     this._addEventListeners();
     this._initialized = true;
   };
 
+  /**
+   * Remove global listeners previously registered by `initialize()`
+   * @category Operations
+   */
   public dispose = () => {
     if (!this._initialized) return;
     this._removeEventListeners();
     this._initialized = false;
   };
 
+  /**
+   * Convenience operation for updating the active language
+   * @category Operations
+   */
   public setLanguage = (language: string) => (this.language = language);
 
+  /**
+   * Register listeners for application-level configuration changes
+   * @category Configuration
+   * @hidden
+   */
   protected _addEventListeners = () =>
     window.addEventListener(
       Gesture.ON_APP_CONFIG_CHANGE,
       this._handleAppConfigChange,
     );
 
+  /**
+   * Remove listeners for application-level configuration changes
+   * @category Configuration
+   * @hidden
+   */
   protected _removeEventListeners = () =>
     window.removeEventListener(
       Gesture.ON_APP_CONFIG_CHANGE,
       this._handleAppConfigChange,
     );
 
+  /**
+   * Apply language updates received from app configuration change events
+   * @category Gesture
+   * @hidden
+   */
   private _handleAppConfigChange = (
     event: CustomEvent<{ language?: string }>,
   ): void => {
@@ -113,5 +179,10 @@ export class Localizer<T extends object> extends EventTarget {
     this.language = detail.language;
   };
 
+  /**
+   * Normalize locale strings to the base lowercase language code
+   * @category Utility
+   * @hidden
+   */
   private _normalize = (locale: string) => locale.split("-")[0].toLowerCase();
 }

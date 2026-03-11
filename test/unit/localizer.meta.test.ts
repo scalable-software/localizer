@@ -33,6 +33,10 @@ metadata("States", () => {
         then("State has LANGUAGE property", () => {
           expect(State.LANGUAGE).toBe("language");
         });
+
+        then("State has LEXICON property", () => {
+          expect(State.LEXICON).toBe("lexicon");
+        });
       });
     });
   });

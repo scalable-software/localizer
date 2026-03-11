@@ -24,6 +24,9 @@ export class Localizer<T extends object> extends EventTarget {
   public get lexicon(): T {
     const language = this.localizations[this.language];
     if (language) return language;
+
+    const english = this.localizations.en;
+    if (english) return english;
   }
 
   public get language(): string {

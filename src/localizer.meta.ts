@@ -38,7 +38,7 @@ export type Operation = (typeof Operation)[keyof typeof Operation];
  * @enum
  */
 export const Event = {
-  ON_LANGUAGE_CHANGE: "onLanguageChange",
+  ON_LANGUAGE_CHANGE: "onlanguagechange",
 } as const;
 /**
  * @category Metadata: Events

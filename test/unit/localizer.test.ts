@@ -199,6 +199,24 @@ operation(Operation.DISPOSE, () => {
     then("localizer.dispose method is defined", () => {
       expect(localizer.dispose).toBeDefined();
     });
+
+    and("localizer._initialized is false", () => {
+      beforeEach(() => {
+        localizer.initialize();
+      });
+      then("localizer._initialized is true", () => {
+        expect(localizer["_initialized"]).toBe(true);
+      });
+
+      when("localizer.dispose is called", () => {
+        beforeEach(() => {
+          localizer.dispose();
+        });
+        then("localizer._initialized is false", () => {
+          expect(localizer["_initialized"]).toBe(false);
+        });
+      });
+    });
   });
 });
 

@@ -25,6 +25,7 @@ export type State = (typeof State)[keyof typeof State];
  * @enum
  */
 export const Operation = {
+  INITIALIZE: "initialize",
   SET_LANGUAGE: "setLanguage",
 } as const;
 

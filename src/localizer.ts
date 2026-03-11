@@ -81,6 +81,8 @@ export class Localizer<T extends object> extends EventTarget {
     this._initialized = true;
   };
 
+  public dispose = () => {};
+
   public setLanguage = (language: string) => (this.language = language);
 
   private _normalize = (locale: string) => locale.split("-")[0].toLowerCase();

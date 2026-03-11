@@ -112,6 +112,35 @@ state(State.LEXICON, () => {
       });
     });
   });
+
+  given("Localizations defined without 'en'", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {
+        de: { greeting: "Hallo" },
+        fr: { greeting: "Bonjour" },
+      };
+    });
+
+    and("localizer instantiated with localizations", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations);
+      });
+
+      and("localizer.setLanguage called with non-existing language", () => {
+        let language: string;
+        beforeEach(() => {
+          language = "es";
+          localizer.setLanguage(language);
+        });
+
+        then("localizer.lexicon is first available lexicon", () => {
+          expect(localizer.lexicon).toBe(localizations.de);
+        });
+      });
+    });
+  });
 });
 
 operation(Operation.SET_LANGUAGE, () => {

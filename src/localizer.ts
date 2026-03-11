@@ -21,8 +21,9 @@ export class Localizer<T extends object> extends EventTarget {
     this._language = this._normalize(navigator.language);
   }
 
-  public get lexicon() {
-    return "";
+  public get lexicon(): T {
+    const language = this.localizations[this.language];
+    if (language) return language;
   }
 
   public get language(): string {

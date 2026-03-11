@@ -1,6 +1,6 @@
 import { Handler } from "@scalable.software/component";
 
-import { Event, type Localizations } from "./localizer.meta.js";
+import { Event, Gesture, type Localizations } from "./localizer.meta.js";
 
 /**
  * Localizer addon for components
@@ -9,7 +9,11 @@ import { Event, type Localizations } from "./localizer.meta.js";
 export class Localizer<T extends object> extends EventTarget {
   private _language: string;
 
+  private _initialized = false;
+
   private _onlanguagechange: Handler = null;
+
+  private _onappconfigchange: Handler = null;
 
   protected localizations: Localizations<T> = {};
 
@@ -71,6 +75,8 @@ export class Localizer<T extends object> extends EventTarget {
     this._onlanguagechange &&
       this.addEventListener(Event.ON_LANGUAGE_CHANGE, this._onlanguagechange);
   }
+
+  public initialize = () => {};
 
   public setLanguage = (language: string) => (this.language = language);
 

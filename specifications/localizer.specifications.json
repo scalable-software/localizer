@@ -2,8 +2,96 @@
   "Component": "Localizer",
   "Package": "localizer",
   "Description": "The Localizer is a utility class that stores localized bundles, resolves the active localization from the current language, listens to global application configuration changes, and emits an event when the language changes.",
-  "States": {},
-  "Operations": {},
-  "Events": {},
-  "Gestures": {}
+  "Data": {
+    "localizations": {
+      "type": "Localizations<T>",
+      "description": "A record of language codes mapped to localization bundles. Each bundle may be present or undefined.",
+      "keys": "language code",
+      "values": "localization bundle or undefined"
+    }
+  },
+  "States": {
+    "language": {
+      "type": "string",
+      "description": "The active language used to resolve the current lexicon. The constructor initializes this value from the normalized browser language or from the normalized constructor argument. Later assignments through `language` or `setLanguage()` store the provided value as-is.",
+      "default": "navigator.language normalized to base lowercase language code",
+      "writable": true,
+      "resolutionNotes": [
+        "Constructor normalization converts values such as `en-US` to `en`.",
+        "Subsequent assignments do not normalize and are stored verbatim.",
+        "Setting the same value or a falsy value does not emit an event."
+      ]
+    },
+    "lexicon": {
+      "type": "T",
+      "description": "The resolved localization bundle for the current language.",
+      "readonly": true,
+      "resolutionOrder": [
+        "bundle matching `language`",
+        "English bundle `en`",
+        "first available bundle"
+      ],
+      "throws": "Localizer: no localization bundles are available."
+    }
+  },
+  "Operations": {
+    "initialize": {
+      "description": "Registers the Localizer to listen for global application configuration changes on `window`.",
+      "parameters": [],
+      "returns": "void",
+      "idempotent": true
+    },
+    "dispose": {
+      "description": "Removes the global application configuration listener previously registered by `initialize()`.",
+      "parameters": [],
+      "returns": "void",
+      "idempotent": true
+    },
+    "setLanguage": {
+      "description": "Updates the active language by delegating to the `language` setter.",
+      "parameters": [
+        {
+          "name": "language",
+          "type": "string",
+          "description": "The new language value to store. Falsy values are ignored."
+        }
+      ],
+      "returns": "void"
+    }
+  },
+  "Events": {
+    "onlanguagechange": {
+      "description": "Triggered when the active language changes to a new truthy value.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new active language.",
+          "properties": {
+            "language": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "notTriggeredWhen": [
+        "the assigned language is falsy",
+        "the assigned language equals the current language"
+      ]
+    }
+  },
+  "Gestures": {
+    "onappconfigchange": {
+      "description": "A window-level custom event used to synchronize the Localizer with application configuration changes.",
+      "listensWhen": "after `initialize()` has been called",
+      "payload": {
+        "detail": {
+          "language": "optional string"
+        }
+      },
+      "effects": {
+        "operation": "set `language` from `detail.language` when present"
+      }
+    }
+  }
 }

@@ -8,7 +8,7 @@ import { Event, Gesture, type Localizations } from "./localizer.meta.js";
  */
 export class Localizer<T extends object> extends EventTarget {
   /**
-   * Active normalized language code used to resolve localization bundles
+   * Active language value used to resolve localization bundles
    * @category State
    * @hidden
    */
@@ -30,7 +30,7 @@ export class Localizer<T extends object> extends EventTarget {
   private _onlanguagechange: Handler = null;
 
   /**
-   * Available localization bundles keyed by normalized language code
+   * Available localization bundles keyed by language code
    * @category Data
    * @hidden
    */
@@ -38,6 +38,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Create a localizer with the available language bundles and initial language
+   * The constructor normalizes the initial language to the base lowercase code
    * @category Configuration
    */
   constructor(
@@ -55,7 +56,7 @@ export class Localizer<T extends object> extends EventTarget {
    * Get the resolved the lexicon for a specific language bundle
    *
    * Resolution order:
-   * 1. localizer language
+   * 1. current language value
    * 2. English
    * 3. first available bundle
    *
@@ -75,7 +76,7 @@ export class Localizer<T extends object> extends EventTarget {
   }
 
   /**
-   * Get the active normalized language code
+   * Get the active language value used for lexicon lookup
    * @category State
    */
   public get language(): string {
@@ -84,6 +85,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Set the active language and emit `onlanguagechange` when it changes
+   * The assigned value is stored as provided and is not normalized here
    * @category State
    */
   public set language(language: string) {
@@ -99,7 +101,7 @@ export class Localizer<T extends object> extends EventTarget {
   }
 
   /**
-   * Triggered when the active language changes
+   * Triggered when the active language changes to a new truthy value
    * @event
    * @category Events
    */
@@ -138,6 +140,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Convenience operation for updating the active language
+   * This delegates to the `language` setter and does not normalize the value
    * @category Operations
    */
   public setLanguage = (language: string) => (this.language = language);
@@ -166,6 +169,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Apply language updates received from app configuration change events
+   * The incoming language is forwarded to the `language` setter as provided
    * @category Gesture
    * @hidden
    */

@@ -163,6 +163,19 @@ state(State.LEXICON, () => {
   });
 });
 
+operation(Operation.INITIALIZE, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({});
+    });
+
+    then("localizer.initialize method is defined", () => {
+      expect(localizer.initialize).toBeDefined();
+    });
+  });
+});
+
 operation(Operation.SET_LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;

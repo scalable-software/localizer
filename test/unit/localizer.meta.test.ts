@@ -98,6 +98,12 @@ metadata("Gesures", () => {
       then("Gesture is an object", () => {
         expect(typeof Gesture).toBe("object");
       });
+
+      and("Gesture is an object", () => {
+        then("Gesture has ON_APP_CONFIG_CHANGE property", () => {
+          expect(Gesture.ON_APP_CONFIG_CHANGE).toBe("onappconfigchange");
+        });
+      });
     });
   });
 });

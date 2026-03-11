@@ -4,6 +4,7 @@ import {
   State,
   Operation,
   Event,
+  Gesture,
 } from "@scalable.software/localizer";
 
 import { type Localizations } from "@scalable.software/localizer";
@@ -332,6 +333,45 @@ events(Event.ON_LANGUAGE_CHANGE, () => {
             });
           });
         });
+      });
+    });
+  });
+});
+
+gesture(Gesture.ON_APP_CONFIG_CHANGE, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({});
+    });
+    and("localizer.initialize is called", () => {
+      beforeEach(() => {
+        localizer.initialize();
+      });
+
+      and("localizer.language is set to english", () => {
+        beforeEach(() => {
+          localizer.language = "en";
+        });
+
+        and(
+          "window dispatches ON_APP_CONFIG_CHANGE event with language in detail",
+          () => {
+            let language: string;
+            beforeEach(() => {
+              language = "de";
+              window.dispatchEvent(
+                new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+                  detail: { language },
+                }),
+              );
+            });
+
+            then("localizer.language is set to language", () => {
+              expect(localizer.language).toBe(language);
+            });
+          },
+        );
       });
     });
   });

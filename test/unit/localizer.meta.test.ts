@@ -9,6 +9,11 @@ metadata("Data", () => {
       then("Data is an object", () => {
         expect(typeof Data).toBe("object");
       });
+      and("Data is an object", () => {
+        then("Data has LOCALIZATIONS property", () => {
+          expect(Data.LOCALIZATIONS).toBe("localizations");
+        });
+      });
     });
   });
 });

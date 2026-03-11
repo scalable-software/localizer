@@ -40,6 +40,8 @@ export class Localizer<T extends object> extends EventTarget {
 
     const first = Object.values(this.localizations).find(Boolean);
     if (first) return first;
+
+    throw new Error("Localizer: no localization bundles are available.");
   }
 
   public get language(): string {

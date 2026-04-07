@@ -1,6 +1,6 @@
 {
   "name": "@scalable.software/localizer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A localization addon for web components using Scalable.Software standards and practices.",
   "keywords": [
     "web component localization addon"

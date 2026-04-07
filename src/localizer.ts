@@ -105,7 +105,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @event
    * @category Events
    */
-  public set onlanguagechange(handler: Handler) {
+  public set onlanguagechange(handler: Handler | null) {
     this._onlanguagechange &&
       this.removeEventListener(
         Event.ON_LANGUAGE_CHANGE,

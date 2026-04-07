@@ -27,7 +27,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Events
    * @hidden
    */
-  private _onlanguagechange: Handler = null;
+  private _onlanguagechange: Handler | null = null;
 
   /**
    * Available localization bundles keyed by language code
@@ -153,7 +153,7 @@ export class Localizer<T extends object> extends EventTarget {
   protected _addEventListeners = () =>
     window.addEventListener(
       Gesture.ON_APP_CONFIG_CHANGE,
-      this._handleAppConfigChange,
+      this._handleAppConfigChange as EventListener,
     );
 
   /**
@@ -164,7 +164,7 @@ export class Localizer<T extends object> extends EventTarget {
   protected _removeEventListeners = () =>
     window.removeEventListener(
       Gesture.ON_APP_CONFIG_CHANGE,
-      this._handleAppConfigChange,
+      this._handleAppConfigChange as EventListener,
     );
 
   /**

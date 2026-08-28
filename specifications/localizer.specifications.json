@@ -5,9 +5,8 @@
   "Data": {
     "localizations": {
       "type": "Localizations<T>",
-      "description": "A record of language codes mapped to localization bundles. Each bundle may be present or undefined.",
-      "keys": "language code",
-      "values": "localization bundle or undefined"
+      "description": "A record of language codes mapped to localization bundles. Keys are language codes; values are localization bundles or undefined. Supplied once through the constructor and internally owned thereafter.",
+      "readonly": true
     }
   },
   "States": {

@@ -753,35 +753,67 @@ gesture(Gesture.ON_APP_CONFIG_CHANGE, () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
       localizer = new Localizer({});
+      localizer.language = "en";
     });
-    and("localizer.initialize is called", () => {
+    afterEach(() => {
+      localizer.dispose();
+    });
+
+    when("window dispatches `onappconfigchange` before `initialize`", () => {
+      beforeEach(() => {
+        window.dispatchEvent(
+          new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+            detail: { language: "de" },
+          }),
+        );
+      });
+
+      then("`localizer.language` is unchanged", () => {
+        expect(localizer.language).toBe("en");
+      });
+    });
+
+    and("`localizer.initialize` is invoked", () => {
       beforeEach(() => {
         localizer.initialize();
       });
 
-      and("localizer.language is set to english", () => {
+      when("window dispatches `onappconfigchange` with `{ language: \"de\" }`", () => {
         beforeEach(() => {
-          localizer.language = "en";
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { language: "de" },
+            }),
+          );
         });
 
-        and(
-          "window dispatches ON_APP_CONFIG_CHANGE event with language in detail",
-          () => {
-            let language: string;
-            beforeEach(() => {
-              language = "de";
-              window.dispatchEvent(
-                new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
-                  detail: { language },
-                }),
-              );
-            });
+        then("`localizer.language` is `\"de\"`", () => {
+          expect(localizer.language).toBe("de");
+        });
+      });
 
-            then("localizer.language is set to language", () => {
-              expect(localizer.language).toBe(language);
-            });
-          },
-        );
+      when("window dispatches `onappconfigchange` without `detail.language`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { coding: "snomed" },
+            }),
+          );
+        });
+
+        then("`localizer.language` is unchanged", () => {
+          expect(localizer.language).toBe("en");
+        });
+      });
+
+      when("window dispatches `onappconfigchange` without `detail`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE));
+        });
+
+        then("`localizer.language` is unchanged", () => {
+          expect(localizer.language).toBe("en");
+        });
       });
     });
   });

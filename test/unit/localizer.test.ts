@@ -35,7 +35,7 @@ data(Data.LOCALIZATIONS, () => {
     let error: Error;
     beforeEach(() => {
       try {
-        new Localizer(null);
+        new Localizer(null as unknown as Localizations<object>);
       } catch (err) {
         error = err as Error;
       }
@@ -167,7 +167,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is lexicon for language", () => {
-          expect(localizer.lexicon).toBe(localizations[language]);
+          expect(localizer.lexicon).toBe(localizations[language]!);
         });
       });
       and("localizer.setLanguage called with non-existing language", () => {
@@ -178,7 +178,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is lexicon for 'en'", () => {
-          expect(localizer.lexicon).toBe(localizations.en);
+          expect(localizer.lexicon).toBe(localizations.en!);
         });
       });
     });
@@ -207,7 +207,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is first available lexicon", () => {
-          expect(localizer.lexicon).toBe(localizations.de);
+          expect(localizer.lexicon).toBe(localizations.de!);
         });
       });
     });

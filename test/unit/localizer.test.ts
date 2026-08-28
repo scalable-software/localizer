@@ -261,6 +261,33 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`localStorage.getItem` throws", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.throwError("SecurityError");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      let error: Error | undefined;
+      beforeEach(() => {
+        try {
+          localizer = new Localizer({}, { storage: "app.language" });
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("no error is thrown", () => {
+        expect(error).toBeUndefined();
+      });
+
+      then("`localizer.language` is seeded from the browser language", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

@@ -30,6 +30,11 @@ export class Validate {
   public static localizations = <T extends object>(
     value: Localizations<T>,
   ) => {
+    const valid =
+      typeof value === "object" && value !== null && !Array.isArray(value);
+    if (!valid) {
+      throw new Error(`Invalid localizations value: ${value}`);
+    }
     return value as Localizations<T>;
   };
 }

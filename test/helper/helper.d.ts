@@ -20,3 +20,4 @@ declare function define(tag: string, component: any): void;
 declare function add<T extends Element>(tag, attributes?: any): T;
 declare function remove(id): void;
 declare function hasSetter(obj: any, propName: string): boolean;
+declare function hasGetter(obj: any, propName: string): boolean;

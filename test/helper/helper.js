@@ -127,3 +127,12 @@ globalThis.hasSetter = (obj, propName) => {
   }
   return false;
 };
+
+globalThis.hasGetter = (obj, propName) => {
+  while (obj) {
+    let descriptor = Object.getOwnPropertyDescriptor(obj, propName);
+    if (descriptor) return !!descriptor.get;
+    obj = Object.getPrototypeOf(obj);
+  }
+  return false;
+};

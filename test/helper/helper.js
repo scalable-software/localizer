@@ -94,6 +94,16 @@ globalThis.data = (data, spec) => {
     spec();
   });
 };
+globalThis.validation = (validation, spec) => {
+  describe(`Validation.${validation} test`, () => {
+    beforeEach(() => {
+      setSpecProperty("type", "Validation");
+      setSpecProperty("spec", validation);
+    });
+
+    spec();
+  });
+};
 
 // Helper functions for testing
 const create = (tag) => document.createElement(tag);

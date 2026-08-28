@@ -7,6 +7,22 @@
       "type": "Localizations<T>",
       "description": "A record of language codes mapped to localization bundles. Keys are language codes; values are localization bundles or undefined. Supplied once through the constructor and internally owned thereafter.",
       "readonly": true
+    },
+    "options": {
+      "type": "Options",
+      "description": "Constructor options, supplied once and internally owned. A bare string passed as the second constructor argument is treated as `{ language }`. `language` is an explicit initial language and wins over storage. `storage` names a localStorage key holding the persisted language; it is read once at construction and never written, and when absent storage is not consulted.",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "Explicit initial language; normalized. Wins over the persisted and browser languages."
+        },
+        "storage": {
+          "type": "string",
+          "description": "localStorage key holding the persisted language, read once at construction and never written. No default — when absent, storage is not consulted. Absent, empty, or unreadable values fall through to the browser language."
+        }
+      },
+      "default": {},
+      "readonly": true
     }
   },
   "States": {

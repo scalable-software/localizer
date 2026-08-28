@@ -108,6 +108,36 @@ validation(Data.LOCALIZATIONS, () => {
           });
         });
       });
+
+      and("`value` is `null`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = null;
+        });
+
+        when("`Validate.localizations(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.localizations(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then("error message is `Invalid localizations value: null`", () => {
+              expect((error as Error).message).toEqual(
+                "Invalid localizations value: null",
+              );
+            });
+          });
+        });
+      });
     });
   });
 });

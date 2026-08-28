@@ -483,6 +483,27 @@ state(State.LEXICON, () => {
     });
   });
 
+  given("Localizations defined with an `undefined` bundle and without 'en'", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {
+        de: undefined,
+        fr: { greeting: "Bonjour" },
+      };
+    });
+
+    and("localizer instantiated with localizations and `\"de\"`", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations, "de");
+      });
+
+      then("`localizer.lexicon` skips the `undefined` bundle and is the first available lexicon", () => {
+        expect(localizer.lexicon).toBe(localizations.fr!);
+      });
+    });
+  });
+
   given("Localizations defined without any lexicon bundle", () => {
     let localizations: Localizations<object>;
     beforeEach(() => {

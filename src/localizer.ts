@@ -58,13 +58,17 @@ export class Localizer<T extends object> extends EventTarget {
    */
   constructor(
     localizations: Localizations<T>,
-    language: string = navigator.language,
+    options: string | Options = {},
   ) {
     super();
 
     this.localizations = Validate.localizations(localizations);
 
-    this._language = this._normalize(Validate.language(language));
+    this._options = this._toOptions(options);
+
+    const seed = this._options.language ?? navigator.language;
+    const language = Validate.language(seed);
+    this._language = this._normalize(language);
   }
 
   /**
@@ -213,6 +217,17 @@ export class Localizer<T extends object> extends EventTarget {
 
     this.language = detail.language;
   };
+
+  /**
+   * Normalize the second constructor argument to an options object
+   * A bare (non-object) value is the positional initial language
+   * @category Utility
+   * @hidden
+   */
+  private _toOptions = (options: string | Options): Options =>
+    typeof options === "object" && options !== null
+      ? options
+      : { language: options as string };
 
   /**
    * Normalize locale strings to the base lowercase language code

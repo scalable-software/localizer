@@ -79,7 +79,7 @@ export class Localizer<T extends object> extends EventTarget {
    * 2. English
    * 3. first available bundle
    *
-   * @category Data
+   * @category State
    */
   public get lexicon(): T {
     const language = this._localizations[this.language];

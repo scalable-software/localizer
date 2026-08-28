@@ -23,6 +23,13 @@
       "values": ["<localization bundle>"],
       "default": "<resolved from localizations>",
       "readonly": true
+    },
+    "initialized": {
+      "type": "Initialized",
+      "description": "Indicates whether the Localizer is listening for global application configuration changes on `window`. Set by `initialize()`, cleared by `dispose()`.",
+      "values": [true, false],
+      "default": false,
+      "readonly": true
     }
   },
   "Operations": {

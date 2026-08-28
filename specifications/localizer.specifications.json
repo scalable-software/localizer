@@ -34,16 +34,14 @@
   },
   "Operations": {
     "initialize": {
-      "description": "Registers the Localizer to listen for global application configuration changes on `window`.",
+      "description": "Registers the Localizer to listen for global application configuration changes on `window`. Idempotent: calling it while already initialized has no effect.",
       "parameters": [],
-      "returns": "void",
-      "idempotent": true
+      "returns": "void"
     },
     "dispose": {
-      "description": "Removes the global application configuration listener previously registered by `initialize()`.",
+      "description": "Removes the global application configuration listener previously registered by `initialize()`. Idempotent: calling it while not initialized has no effect.",
       "parameters": [],
-      "returns": "void",
-      "idempotent": true
+      "returns": "void"
     },
     "setLanguage": {
       "description": "Updates the active language by delegating to the `language` setter.",

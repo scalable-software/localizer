@@ -11,4 +11,6 @@ export {
 
 export { Validate } from "./localizer.validation.js";
 
+export { type Handler } from "@scalable.software/component";
+
 export { Localizer } from "./localizer.js";

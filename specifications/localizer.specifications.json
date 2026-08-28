@@ -28,9 +28,9 @@
   "States": {
     "language": {
       "type": "Language",
-      "description": "The active language used to resolve the current lexicon. The constructor initializes this value from the normalized browser language or from the normalized constructor argument (`en-US` becomes `en`). Later assignments through `language` or `setLanguage()` are stored verbatim. Falsy assignments are ignored; non-string assignments throw `Invalid language value: <value>`. Setting the same value does not emit an event.",
+      "description": "The active language used to resolve the current lexicon. The constructor seeds it, in order, from `options.language`, then the language persisted at `localStorage[options.storage]` when `storage` is configured and holds a value, then `navigator.language`; the seed is normalized (`en-US` becomes `en`). Seeding does not emit an event. Later assignments through `language` or `setLanguage()` are stored verbatim. Falsy assignments are ignored; non-string assignments throw `Invalid language value: <value>`. Setting the same value does not emit an event.",
       "values": ["<language code>"],
-      "default": "<navigator.language normalized to base lowercase language code>",
+      "default": "<options.language, else the persisted language at options.storage, else navigator.language — normalized to base lowercase language code>",
       "readonly": false
     },
     "lexicon": {

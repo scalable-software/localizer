@@ -57,7 +57,7 @@
   },
   "Events": {
     "onlanguagechange": {
-      "description": "Triggered when the active language changes to a new truthy value.",
+      "description": "Triggered when the active language changes to a new truthy value. Not triggered when the assigned language is falsy or equals the current language.",
       "parameters": [
         {
           "name": "detail",
@@ -69,10 +69,6 @@
             }
           }
         }
-      ],
-      "notTriggeredWhen": [
-        "the assigned language is falsy",
-        "the assigned language equals the current language"
       ]
     }
   },

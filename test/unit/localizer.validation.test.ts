@@ -141,3 +141,17 @@ validation(Data.LOCALIZATIONS, () => {
     });
   });
 });
+
+validation(Data.OPTIONS, () => {
+  given("Validate imported", () => {
+    then("`Validate` exists", () => {
+      expect(Validate).toBeDefined();
+    });
+
+    and("`Validate` exists", () => {
+      then("`Validate.options` static method exists", () => {
+        expect(Validate.options).toBeDefined();
+      });
+    });
+  });
+});

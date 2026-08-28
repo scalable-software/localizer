@@ -241,10 +241,11 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Read the persisted language from localStorage, if a key is configured
-   * Returns null when no key is configured or nothing is persisted. Never writes.
+   * Returns null when no key is configured, or the value is absent or empty.
+   * Never writes.
    * @category Utility
    * @hidden
    */
   private _persisted = (key?: string): string | null =>
-    key ? localStorage.getItem(key) : null;
+    key ? localStorage.getItem(key) || null : null;
 }

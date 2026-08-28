@@ -9,7 +9,8 @@
     "paths": {
       "@scalable.software/localizer": ["./src/index.js"]
     },
-    "declaration": false
+    "declaration": false,
+    "types": ["jasmine"]
   },
   "include": [
     "./src/**/*",

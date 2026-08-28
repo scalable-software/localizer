@@ -30,6 +30,26 @@ data(Data.LOCALIZATIONS, () => {
       });
     });
   });
+
+  given("Localizer instantiated with `null` as localizations", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        // @ts-expect-error
+        new Localizer(null);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid localizations value: null`", () => {
+      expect(error.message).toBe("Invalid localizations value: null");
+    });
+  });
 });
 
 state(State.LANGUAGE, () => {

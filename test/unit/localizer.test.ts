@@ -243,6 +243,24 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`localStorage[\"app.language\"]` is `\"\"`", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.returnValue("");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded from the browser language", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

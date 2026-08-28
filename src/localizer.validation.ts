@@ -45,6 +45,11 @@ export class Validate {
    * @category Validation
    */
   public static options = (value: Options) => {
+    const valid =
+      typeof value === "object" && value !== null && !Array.isArray(value);
+    if (!valid) {
+      throw new Error(`Invalid options value: ${value}`);
+    }
     return value as Options;
   };
 }

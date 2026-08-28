@@ -64,11 +64,11 @@ export class Localizer<T extends object> extends EventTarget {
 
     this.localizations = Validate.localizations(localizations);
 
-    this._options = this._toOptions(options);
+    this._options = this._normalizeOptions(options);
 
     const seed = this._options.language ?? navigator.language;
     const language = Validate.language(seed);
-    this._language = this._normalize(language);
+    this._language = this._normalizeLanguage(language);
   }
 
   /**
@@ -224,7 +224,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Utility
    * @hidden
    */
-  private _toOptions = (options: string | Options): Options =>
+  private _normalizeOptions = (options: string | Options): Options =>
     typeof options === "object" && options !== null
       ? options
       : { language: options as string };
@@ -234,5 +234,6 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Utility
    * @hidden
    */
-  private _normalize = (locale: string) => locale.split("-")[0].toLowerCase();
+  private _normalizeLanguage = (locale: string) =>
+    locale.split("-")[0].toLowerCase();
 }

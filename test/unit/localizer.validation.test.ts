@@ -81,6 +81,33 @@ validation(Data.LOCALIZATIONS, () => {
       then("`Validate.localizations` static method exists", () => {
         expect(Validate.localizations).toBeDefined();
       });
+
+      and("`value` is a record", () => {
+        let value: any;
+        beforeEach(() => {
+          value = { en: { greeting: "Hello" } };
+        });
+
+        when("`Validate.localizations(value)` is called", () => {
+          let error: unknown | undefined;
+          let result: any;
+          beforeEach(() => {
+            try {
+              result = Validate.localizations(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("result is `value`", () => {
+            expect(result).toBe(value);
+          });
+        });
+      });
     });
   });
 });

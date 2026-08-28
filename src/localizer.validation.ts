@@ -12,5 +12,7 @@ export class Validate {
    * Throws if the value is not a string.
    * @category Validation
    */
-  public static language = (value: string) => {};
+  public static language = (value: string) => {
+    return value as string;
+  };
 }

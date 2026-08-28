@@ -118,6 +118,17 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("Localizer instantiated with `\"en-US\"` as language", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, "en-US");
+    });
+
+    then("`localizer.language` is normalized to `\"en\"`", () => {
+      expect(localizer.language).toBe("en");
+    });
+  });
+
   given("Localizer instantiated with `42` as language", () => {
     let error: Error;
     beforeEach(() => {

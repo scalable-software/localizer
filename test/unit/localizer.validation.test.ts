@@ -209,6 +209,39 @@ validation(Data.OPTIONS, () => {
           });
         });
       });
+
+      and("`value` is `{ storage: 42 }`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = { storage: 42 };
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then(
+              "error message is `Invalid options value: storage is invalid`",
+              () => {
+                expect((error as Error).message).toEqual(
+                  "Invalid options value: storage is invalid",
+                );
+              },
+            );
+          });
+        });
+      });
     });
   });
 });

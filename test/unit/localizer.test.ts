@@ -98,6 +98,26 @@ state(State.LANGUAGE, () => {
       expect(localizer.language).toBe("de");
     });
   });
+
+  given("Localizer instantiated with `42` as language", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        // @ts-expect-error
+        new Localizer({}, 42);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid language value: 42`", () => {
+      expect(error.message).toBe("Invalid language value: 42");
+    });
+  });
 });
 
 state(State.LEXICON, () => {

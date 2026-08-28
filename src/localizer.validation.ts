@@ -29,5 +29,7 @@ export class Validate {
    */
   public static localizations = <T extends object>(
     value: Localizations<T>,
-  ) => {};
+  ) => {
+    return value as Localizations<T>;
+  };
 }

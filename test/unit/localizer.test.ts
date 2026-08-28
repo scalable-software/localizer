@@ -68,6 +68,17 @@ data(Data.OPTIONS, () => {
       });
     });
   });
+
+  given("Localizer instantiated with `\"de\"` as options", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, "de");
+    });
+
+    then("`localizer.options` is `{ language: \"de\" }`", () => {
+      expect(localizer.options).toEqual({ language: "de" });
+    });
+  });
 });
 
 state(State.LANGUAGE, () => {

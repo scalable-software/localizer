@@ -37,6 +37,36 @@ validation(State.LANGUAGE, () => {
           });
         });
       });
+
+      and("`value` is `42`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = 42;
+        });
+
+        when("`Validate.language(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.language(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then("error message is `Invalid language value: 42`", () => {
+              expect((error as Error).message).toEqual(
+                "Invalid language value: 42",
+              );
+            });
+          });
+        });
+      });
     });
   });
 });

@@ -35,7 +35,6 @@ data(Data.LOCALIZATIONS, () => {
     let error: Error;
     beforeEach(() => {
       try {
-        // @ts-expect-error
         new Localizer(null);
       } catch (err) {
         error = err as Error;

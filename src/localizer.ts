@@ -42,7 +42,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Data
    * @hidden
    */
-  protected localizations: Localizations<T> = {};
+  private _localizations: Localizations<T> = {};
 
   /**
    * Constructor options: explicit initial language and persisted-language storage key
@@ -62,7 +62,7 @@ export class Localizer<T extends object> extends EventTarget {
   ) {
     super();
 
-    this.localizations = Validate.localizations(localizations);
+    this._localizations = Validate.localizations(localizations);
 
     const normalized = this._normalizeOptions(options);
     this._options = Validate.options(normalized);
@@ -79,19 +79,27 @@ export class Localizer<T extends object> extends EventTarget {
    * 2. English
    * 3. first available bundle
    *
-   * @category Data
+   * @category State
    */
   public get lexicon(): T {
-    const language = this.localizations[this.language];
+    const language = this._localizations[this.language];
     if (language) return language;
 
-    const english = this.localizations.en;
+    const english = this._localizations.en;
     if (english) return english;
 
-    const first = Object.values(this.localizations).find(Boolean);
+    const first = Object.values(this._localizations).find(Boolean);
     if (first) return first;
 
     throw new Error("Localizer: no localization bundles are available.");
+  }
+
+  /**
+   * Get the localization bundles the localizer was created with
+   * @category Data
+   */
+  public get localizations(): Localizations<T> {
+    return this._localizations;
   }
 
   /**

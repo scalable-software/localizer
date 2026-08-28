@@ -9,6 +9,10 @@ import {
 
 import { type Localizations, type Options } from "@scalable.software/localizer";
 
+// Number of calls a window listener spy received for a given event type
+const listenerCalls = (spy: jasmine.Spy, type: string) =>
+  spy.calls.allArgs().filter(([name]) => name === type).length;
+
 data(Data.LOCALIZATIONS, () => {
   given("Localizations defined", () => {
     let localizations: Localizations<object>;
@@ -25,8 +29,14 @@ data(Data.LOCALIZATIONS, () => {
         localizer = new Localizer(localizations);
       });
 
-      then("localizer.localizations is localizations", () => {
-        expect(localizer["localizations"]).toBe(localizations);
+      then("`localizer.localizations` getter exists", () => {
+        expect(hasGetter(localizer, "localizations")).toBe(true);
+      });
+
+      and("`localizer.localizations` getter exists", () => {
+        then("`localizer.localizations` is `localizations`", () => {
+          expect(localizer.localizations).toBe(localizations);
+        });
       });
     });
   });
@@ -130,6 +140,18 @@ state(State.LANGUAGE, () => {
           localizer.language = language;
         });
         then("localizer.language is set to language", () => {
+          expect(localizer.language).toBe(language);
+        });
+      });
+
+      when("`localizer.language` is set to `\"\"`", () => {
+        let language: string;
+        beforeEach(() => {
+          language = localizer.language;
+          localizer.language = "";
+        });
+
+        then("`localizer.language` is unchanged", () => {
           expect(localizer.language).toBe(language);
         });
       });
@@ -473,6 +495,27 @@ state(State.LEXICON, () => {
     });
   });
 
+  given("Localizations defined with an `undefined` bundle and without 'en'", () => {
+    let localizations: Localizations<object>;
+    beforeEach(() => {
+      localizations = {
+        de: undefined,
+        fr: { greeting: "Bonjour" },
+      };
+    });
+
+    and("localizer instantiated with localizations and `\"de\"`", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer(localizations, "de");
+      });
+
+      then("`localizer.lexicon` skips the `undefined` bundle and is the first available lexicon", () => {
+        expect(localizer.lexicon).toBe(localizations.fr!);
+      });
+    });
+  });
+
   given("Localizations defined without any lexicon bundle", () => {
     let localizations: Localizations<object>;
     beforeEach(() => {
@@ -497,24 +540,56 @@ state(State.LEXICON, () => {
 operation(Operation.INITIALIZE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
+    let addEventListener: jasmine.Spy;
     beforeEach(() => {
       localizer = new Localizer({});
+      addEventListener = spyOn(window, "addEventListener").and.callThrough();
+    });
+    afterEach(() => {
+      localizer.dispose();
     });
 
-    then("localizer.initialize method is defined", () => {
+    then("`localizer.initialize` method exists", () => {
       expect(localizer.initialize).toBeDefined();
     });
 
-    then("localizer._initialized is false", () => {
-      expect(localizer["_initialized"]).toBe(false);
-    });
+    and("`localizer.initialize` method exists", () => {
+      when("invoking `localizer.initialize`", () => {
+        beforeEach(() => {
+          localizer.initialize();
+        });
 
-    when("localizer.initialize is called", () => {
-      beforeEach(() => {
-        localizer.initialize();
-      });
-      then("localizer._initialized is true", () => {
-        expect(localizer["_initialized"]).toBe(true);
+        then("an `onappconfigchange` listener is added to `window`", () => {
+          expect(
+            listenerCalls(addEventListener, Gesture.ON_APP_CONFIG_CHANGE),
+          ).toBe(1);
+        });
+
+        when("window dispatches `onappconfigchange` with `{ language: \"de\" }`", () => {
+          beforeEach(() => {
+            window.dispatchEvent(
+              new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+                detail: { language: "de" },
+              }),
+            );
+          });
+
+          then("`localizer.language` is `\"de\"`", () => {
+            expect(localizer.language).toBe("de");
+          });
+        });
+
+        when("invoking `localizer.initialize` again", () => {
+          beforeEach(() => {
+            localizer.initialize();
+          });
+
+          then("no second `onappconfigchange` listener is added", () => {
+            expect(
+              listenerCalls(addEventListener, Gesture.ON_APP_CONFIG_CHANGE),
+            ).toBe(1);
+          });
+        });
       });
     });
   });
@@ -523,28 +598,66 @@ operation(Operation.INITIALIZE, () => {
 operation(Operation.DISPOSE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
+    let removeEventListener: jasmine.Spy;
     beforeEach(() => {
       localizer = new Localizer({});
+      removeEventListener = spyOn(
+        window,
+        "removeEventListener",
+      ).and.callThrough();
+    });
+    afterEach(() => {
+      localizer.dispose();
     });
 
-    then("localizer.dispose method is defined", () => {
+    then("`localizer.dispose` method exists", () => {
       expect(localizer.dispose).toBeDefined();
     });
 
-    and("localizer._initialized is false", () => {
-      beforeEach(() => {
-        localizer.initialize();
-      });
-      then("localizer._initialized is true", () => {
-        expect(localizer["_initialized"]).toBe(true);
-      });
-
-      when("localizer.dispose is called", () => {
+    and("`localizer.dispose` method exists", () => {
+      when("invoking `localizer.dispose` without `initialize`", () => {
         beforeEach(() => {
           localizer.dispose();
         });
-        then("localizer._initialized is false", () => {
-          expect(localizer["_initialized"]).toBe(false);
+
+        then("no `onappconfigchange` listener is removed from `window`", () => {
+          expect(
+            listenerCalls(removeEventListener, Gesture.ON_APP_CONFIG_CHANGE),
+          ).toBe(0);
+        });
+      });
+
+      and("`localizer.initialize` was invoked", () => {
+        beforeEach(() => {
+          localizer.initialize();
+        });
+
+        when("invoking `localizer.dispose`", () => {
+          let language: string;
+          beforeEach(() => {
+            localizer.dispose();
+            language = localizer.language;
+          });
+
+          then("the `onappconfigchange` listener is removed from `window`", () => {
+            expect(
+              listenerCalls(removeEventListener, Gesture.ON_APP_CONFIG_CHANGE),
+            ).toBe(1);
+          });
+
+          when("window dispatches `onappconfigchange` with `{ language: \"de\" }`", () => {
+            beforeEach(() => {
+              window.dispatchEvent(
+                new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+                  detail: { language: "de" },
+                }),
+              );
+            });
+
+            then("`localizer.language` is unchanged", () => {
+              expect(localizer.language).toBe(language);
+            });
+          });
         });
       });
     });
@@ -673,35 +786,67 @@ gesture(Gesture.ON_APP_CONFIG_CHANGE, () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
       localizer = new Localizer({});
+      localizer.language = "en";
     });
-    and("localizer.initialize is called", () => {
+    afterEach(() => {
+      localizer.dispose();
+    });
+
+    when("window dispatches `onappconfigchange` before `initialize`", () => {
+      beforeEach(() => {
+        window.dispatchEvent(
+          new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+            detail: { language: "de" },
+          }),
+        );
+      });
+
+      then("`localizer.language` is unchanged", () => {
+        expect(localizer.language).toBe("en");
+      });
+    });
+
+    and("`localizer.initialize` is invoked", () => {
       beforeEach(() => {
         localizer.initialize();
       });
 
-      and("localizer.language is set to english", () => {
+      when("window dispatches `onappconfigchange` with `{ language: \"de\" }`", () => {
         beforeEach(() => {
-          localizer.language = "en";
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { language: "de" },
+            }),
+          );
         });
 
-        and(
-          "window dispatches ON_APP_CONFIG_CHANGE event with language in detail",
-          () => {
-            let language: string;
-            beforeEach(() => {
-              language = "de";
-              window.dispatchEvent(
-                new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
-                  detail: { language },
-                }),
-              );
-            });
+        then("`localizer.language` is `\"de\"`", () => {
+          expect(localizer.language).toBe("de");
+        });
+      });
 
-            then("localizer.language is set to language", () => {
-              expect(localizer.language).toBe(language);
-            });
-          },
-        );
+      when("window dispatches `onappconfigchange` without `detail.language`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { coding: "snomed" },
+            }),
+          );
+        });
+
+        then("`localizer.language` is unchanged", () => {
+          expect(localizer.language).toBe("en");
+        });
+      });
+
+      when("window dispatches `onappconfigchange` without `detail`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE));
+        });
+
+        then("`localizer.language` is unchanged", () => {
+          expect(localizer.language).toBe("en");
+        });
       });
     });
   });

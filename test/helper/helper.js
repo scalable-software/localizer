@@ -105,6 +105,14 @@ globalThis.validation = (validation, spec) => {
   });
 };
 
+globalThis.Metadata = {
+  DATA: "data",
+  STATE: "state",
+  OPERATION: "operation",
+  EVENT: "event",
+  GESTURE: "gesture",
+};
+
 // Helper functions for testing
 const create = (tag) => document.createElement(tag);
 const append = (element) => document.body.appendChild(element);
@@ -123,6 +131,15 @@ globalThis.hasSetter = (obj, propName) => {
   while (obj) {
     let descriptor = Object.getOwnPropertyDescriptor(obj, propName);
     if (descriptor) return !!descriptor.set;
+    obj = Object.getPrototypeOf(obj);
+  }
+  return false;
+};
+
+globalThis.hasGetter = (obj, propName) => {
+  while (obj) {
+    let descriptor = Object.getOwnPropertyDescriptor(obj, propName);
+    if (descriptor) return !!descriptor.get;
     obj = Object.getPrototypeOf(obj);
   }
   return false;

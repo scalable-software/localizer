@@ -31,6 +31,12 @@ export const State = {
 export type State = (typeof State)[keyof typeof State];
 
 /**
+ * Value domain of the `language` state: an open language code such as `en` or `de`
+ * @category Metadata: State
+ */
+export type Language = string;
+
+/**
  * Operation names exposed by the Localizer public API
  * @category Metadata: Operations
  * @enum

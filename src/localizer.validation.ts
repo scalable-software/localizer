@@ -2,7 +2,11 @@
  * @module Localizer
  */
 
-import { type Localizations, type Options } from "./localizer.meta.js";
+import {
+  type Language,
+  type Localizations,
+  type Options,
+} from "./localizer.meta.js";
 
 /**
  * Runtime enforcement of the value domains declared in `localizer.meta.ts`
@@ -19,7 +23,7 @@ export class Validate {
     if (!valid) {
       throw new Error(`Invalid language value: ${value}`);
     }
-    return value as string;
+    return value as Language;
   };
 
   /**

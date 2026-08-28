@@ -1,6 +1,11 @@
 import { Handler } from "@scalable.software/component";
 
-import { Event, Gesture, type Localizations } from "./localizer.meta.js";
+import {
+  Event,
+  Gesture,
+  type Localizations,
+  type Options,
+} from "./localizer.meta.js";
 
 // Validation
 import { Validate } from "./localizer.validation.js";
@@ -40,6 +45,13 @@ export class Localizer<T extends object> extends EventTarget {
   protected localizations: Localizations<T> = {};
 
   /**
+   * Constructor options: explicit initial language and persisted-language storage key
+   * @category Data
+   * @hidden
+   */
+  private _options: Options = {};
+
+  /**
    * Create a localizer with the available language bundles and initial language
    * The constructor normalizes the initial language to the base lowercase code
    * @category Configuration
@@ -76,6 +88,14 @@ export class Localizer<T extends object> extends EventTarget {
     if (first) return first;
 
     throw new Error("Localizer: no localization bundles are available.");
+  }
+
+  /**
+   * Get the constructor options the localizer was created with
+   * @category Data
+   */
+  public get options(): Options {
+    return this._options;
   }
 
   /**

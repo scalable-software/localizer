@@ -44,5 +44,7 @@ export class Validate {
    * `language` or `storage` field is not a string.
    * @category Validation
    */
-  public static options = (value: Options) => {};
+  public static options = (value: Options) => {
+    return value as Options;
+  };
 }

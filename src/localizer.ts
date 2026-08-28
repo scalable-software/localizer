@@ -242,7 +242,7 @@ export class Localizer<T extends object> extends EventTarget {
   /**
    * Read the persisted language from localStorage, if a key is configured
    * Returns null when no key is configured, the value is absent or empty, or
-   * storage is unavailable. Never writes.
+   * `localStorage` access throws (cookies / site data blocked, sandboxed frame).
    * @category Utility
    * @hidden
    */

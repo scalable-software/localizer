@@ -50,6 +50,15 @@ export class Validate {
     if (!valid) {
       throw new Error(`Invalid options value: ${value}`);
     }
+
+    const fields: (keyof Options)[] = ["language", "storage"];
+    for (const field of fields) {
+      const present = value[field] !== undefined;
+      if (present && typeof value[field] !== "string") {
+        throw new Error(`Invalid options value: ${field} is invalid`);
+      }
+    }
+
     return value as Options;
   };
 }

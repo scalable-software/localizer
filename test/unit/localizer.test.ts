@@ -288,6 +288,23 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`localStorage.getItem` is observed", () => {
+    let getItem: jasmine.Spy;
+    beforeEach(() => {
+      getItem = spyOn(localStorage, "getItem").and.callThrough();
+    });
+
+    and("Localizer instantiated without `storage`", () => {
+      beforeEach(() => {
+        new Localizer({});
+      });
+
+      then("`localStorage.getItem` is not called", () => {
+        expect(getItem).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

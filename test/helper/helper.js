@@ -105,6 +105,14 @@ globalThis.validation = (validation, spec) => {
   });
 };
 
+globalThis.Metadata = {
+  DATA: "data",
+  STATE: "state",
+  OPERATION: "operation",
+  EVENT: "event",
+  GESTURE: "gesture",
+};
+
 // Helper functions for testing
 const create = (tag) => document.createElement(tag);
 const append = (element) => document.body.appendChild(element);

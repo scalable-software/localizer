@@ -352,6 +352,32 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`onlanguagechange` is observed on `Localizer.prototype`", () => {
+    let dispatchEvent: jasmine.Spy;
+    beforeEach(() => {
+      dispatchEvent = spyOn(
+        Localizer.prototype,
+        "dispatchEvent",
+      ).and.callThrough();
+      spyOn(localStorage, "getItem").and.returnValue("nl");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded to `\"nl\"`", () => {
+        expect(localizer.language).toBe("nl");
+      });
+
+      then("no event is dispatched", () => {
+        expect(dispatchEvent).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

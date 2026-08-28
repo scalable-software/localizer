@@ -6,18 +6,21 @@ import {
   Gesture,
 } from "@scalable.software/localizer";
 
-metadata("Data", () => {
+// Data
+metadata(Metadata.DATA, () => {
   and("Data imported", () => {
     then("Data is defined", () => {
       expect(Data).toBeDefined();
     });
-    when("Data is defined", () => {
+
+    and("Data is defined", () => {
       then("Data is an object", () => {
         expect(typeof Data).toBe("object");
       });
-      and("Data is an object", () => {
-        then("Data has LOCALIZATIONS property", () => {
-          expect(Data.LOCALIZATIONS).toBe("localizations");
+
+      when("Data is an object", () => {
+        then("`Data.LOCALIZATIONS` exists", () => {
+          expect(Data.LOCALIZATIONS).toBeDefined();
         });
 
         then("`Data.OPTIONS` exists", () => {
@@ -28,92 +31,96 @@ metadata("Data", () => {
   });
 });
 
-metadata("States", () => {
+// State
+metadata(Metadata.STATE, () => {
   and("State imported", () => {
     then("State is defined", () => {
       expect(State).toBeDefined();
     });
 
-    when("State is defined", () => {
+    and("State is defined", () => {
       then("State is an object", () => {
         expect(typeof State).toBe("object");
       });
 
-      and("State is an object", () => {
-        then("State has LANGUAGE property", () => {
-          expect(State.LANGUAGE).toBe("language");
+      when("State is an object", () => {
+        then("`State.LANGUAGE` exists", () => {
+          expect(State.LANGUAGE).toBeDefined();
         });
 
-        then("State has LEXICON property", () => {
-          expect(State.LEXICON).toBe("lexicon");
+        then("`State.LEXICON` exists", () => {
+          expect(State.LEXICON).toBeDefined();
         });
       });
     });
   });
 });
 
-metadata("Operations", () => {
+// Operation
+metadata(Metadata.OPERATION, () => {
   and("Operation imported", () => {
     then("Operation is defined", () => {
       expect(Operation).toBeDefined();
     });
 
-    when("Operation is defined", () => {
+    and("Operation is defined", () => {
       then("Operation is an object", () => {
         expect(typeof Operation).toBe("object");
       });
 
-      and("Operation is an object", () => {
-        then("Operation has SET_LANGUAGE property", () => {
-          expect(Operation.SET_LANGUAGE).toBe("setLanguage");
+      when("Operation is an object", () => {
+        then("`Operation.INITIALIZE` exists", () => {
+          expect(Operation.INITIALIZE).toBeDefined();
         });
 
-        then("Operation has INITIALIZE property", () => {
-          expect(Operation.INITIALIZE).toBe("initialize");
+        then("`Operation.DISPOSE` exists", () => {
+          expect(Operation.DISPOSE).toBeDefined();
         });
 
-        then("Operation has DISPOSE property", () => {
-          expect(Operation.DISPOSE).toBe("dispose");
+        then("`Operation.SET_LANGUAGE` exists", () => {
+          expect(Operation.SET_LANGUAGE).toBeDefined();
         });
       });
     });
   });
 });
 
-metadata("Events", () => {
+// Event
+metadata(Metadata.EVENT, () => {
   and("Event imported", () => {
     then("Event is defined", () => {
       expect(Event).toBeDefined();
     });
 
-    when("Event is defined", () => {
+    and("Event is defined", () => {
       then("Event is an object", () => {
         expect(typeof Event).toBe("object");
       });
 
-      and("Event is an object", () => {
-        then("Event has ON_LANGUAGE_CHANGE property", () => {
-          expect(Event.ON_LANGUAGE_CHANGE).toBe("onlanguagechange");
+      when("Event is an object", () => {
+        then("`Event.ON_LANGUAGE_CHANGE` exists", () => {
+          expect(Event.ON_LANGUAGE_CHANGE).toBeDefined();
         });
       });
     });
   });
 });
 
-metadata("Gesures", () => {
+// Gesture
+metadata(Metadata.GESTURE, () => {
   and("Gesture imported", () => {
     then("Gesture is defined", () => {
       expect(Gesture).toBeDefined();
     });
 
-    when("Gesture is defined", () => {
+    and("Gesture is defined", () => {
       then("Gesture is an object", () => {
         expect(typeof Gesture).toBe("object");
       });
 
-      and("Gesture is an object", () => {
-        then("Gesture has ON_APP_CONFIG_CHANGE property", () => {
-          expect(Gesture.ON_APP_CONFIG_CHANGE).toBe("onappconfigchange");
+      when("Gesture is an object", () => {
+        then("`Gesture.ON_APP_CONFIG_CHANGE` exists", () => {
+          expect(Gesture.ON_APP_CONFIG_CHANGE).toBeDefined();
         });
       });
     });

@@ -144,6 +144,18 @@ state(State.LANGUAGE, () => {
         });
       });
 
+      when("`localizer.language` is set to `\"\"`", () => {
+        let language: string;
+        beforeEach(() => {
+          language = localizer.language;
+          localizer.language = "";
+        });
+
+        then("`localizer.language` is unchanged", () => {
+          expect(localizer.language).toBe(language);
+        });
+      });
+
       when("`localizer.language` is set to `42`", () => {
         let error: Error;
         beforeEach(() => {

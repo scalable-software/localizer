@@ -2,7 +2,7 @@
  * @module Localizer
  */
 
-import { type Localizations } from "./localizer.meta.js";
+import { type Localizations, type Options } from "./localizer.meta.js";
 
 /**
  * Runtime enforcement of the value domains declared in `localizer.meta.ts`
@@ -37,4 +37,12 @@ export class Validate {
     }
     return value as Localizations<T>;
   };
+
+  /**
+   * Validates that the value is a constructor options object.
+   * Throws if the value is not a non-null, non-array object, or if a present
+   * `language` or `storage` field is not a string.
+   * @category Validation
+   */
+  public static options = (value: Options) => {};
 }

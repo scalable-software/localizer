@@ -138,6 +138,28 @@ validation(Data.LOCALIZATIONS, () => {
           });
         });
       });
+
+      and("`value` is `[]`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = [];
+        });
+
+        when("`Validate.localizations(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.localizations(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+        });
+      });
     });
   });
 });

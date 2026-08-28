@@ -61,6 +61,12 @@ data(Data.OPTIONS, () => {
     then("`localizer.options` getter exists", () => {
       expect(localizer.options).toBeDefined();
     });
+
+    and("`localizer.options` getter exists", () => {
+      then("`localizer.options` is `{}`", () => {
+        expect(localizer.options).toEqual({});
+      });
+    });
   });
 });
 

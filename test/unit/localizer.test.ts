@@ -7,7 +7,7 @@ import {
   Gesture,
 } from "@scalable.software/localizer";
 
-import { type Localizations } from "@scalable.software/localizer";
+import { type Localizations, type Options } from "@scalable.software/localizer";
 
 data(Data.LOCALIZATIONS, () => {
   given("Localizations defined", () => {
@@ -77,6 +77,25 @@ data(Data.OPTIONS, () => {
 
     then("`localizer.options` is `{ language: \"de\" }`", () => {
       expect(localizer.options).toEqual({ language: "de" });
+    });
+  });
+
+  given("Localizer instantiated with `null` as options", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer({}, null as unknown as Options);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid options value: null`", () => {
+      expect(error.message).toBe("Invalid options value: null");
     });
   });
 });
@@ -159,7 +178,7 @@ state(State.LANGUAGE, () => {
     });
   });
 
-  given("Localizer instantiated with `42` as language", () => {
+  given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {
       try {
@@ -174,8 +193,8 @@ state(State.LANGUAGE, () => {
       expect(error).toBeDefined();
     });
 
-    then("error message is `Invalid language value: 42`", () => {
-      expect(error.message).toBe("Invalid language value: 42");
+    then("error message is `Invalid options value: 42`", () => {
+      expect(error.message).toBe("Invalid options value: 42");
     });
   });
 });

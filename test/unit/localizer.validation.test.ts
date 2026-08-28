@@ -179,6 +179,36 @@ validation(Data.OPTIONS, () => {
           });
         });
       });
+
+      and("`value` is `null`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = null;
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then("error message is `Invalid options value: null`", () => {
+              expect((error as Error).message).toEqual(
+                "Invalid options value: null",
+              );
+            });
+          });
+        });
+      });
     });
   });
 });

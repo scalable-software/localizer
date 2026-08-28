@@ -13,6 +13,10 @@ export class Validate {
    * @category Validation
    */
   public static language = (value: string) => {
+    const valid = typeof value === "string";
+    if (!valid) {
+      throw new Error(`Invalid language value: ${value}`);
+    }
     return value as string;
   };
 }

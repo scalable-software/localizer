@@ -234,10 +234,10 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Utility
    * @hidden
    */
-  private _normalizeLanguage = ({ language, storage }: Options): string => {
-    const locale = language ?? this._persisted(storage) ?? navigator.language;
-    return locale.split("-")[0].toLowerCase();
-  };
+  private _normalizeLanguage = ({ language, storage }: Options): string =>
+    (language ?? this._persisted(storage) ?? navigator.language)
+      .split("-")[0]
+      .toLowerCase();
 
   /**
    * Read the persisted language from localStorage, if a key is configured

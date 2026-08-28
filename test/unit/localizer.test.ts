@@ -206,6 +206,23 @@ state(State.LANGUAGE, () => {
         expect(localizer.language).toBe("nl");
       });
     });
+
+    and(
+      "Localizer instantiated with `{ language: \"de\", storage: \"app.language\" }` as options",
+      () => {
+        let localizer: Localizer<object>;
+        beforeEach(() => {
+          localizer = new Localizer(
+            {},
+            { language: "de", storage: "app.language" },
+          );
+        });
+
+        then("`localizer.language` is seeded to `\"de\"`", () => {
+          expect(localizer.language).toBe("de");
+        });
+      },
+    );
   });
 
   given("Localizer instantiated with `42` as options", () => {

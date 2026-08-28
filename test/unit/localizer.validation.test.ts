@@ -1,4 +1,4 @@
-import { State, Validate } from "@scalable.software/localizer";
+import { Data, State, Validate } from "@scalable.software/localizer";
 
 validation(State.LANGUAGE, () => {
   given("Validate imported", () => {
@@ -66,6 +66,20 @@ validation(State.LANGUAGE, () => {
             });
           });
         });
+      });
+    });
+  });
+});
+
+validation(Data.LOCALIZATIONS, () => {
+  given("Validate imported", () => {
+    then("`Validate` exists", () => {
+      expect(Validate).toBeDefined();
+    });
+
+    and("`Validate` exists", () => {
+      then("`Validate.localizations` static method exists", () => {
+        expect(Validate.localizations).toBeDefined();
       });
     });
   });

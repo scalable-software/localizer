@@ -28,6 +28,10 @@ data(Data.LOCALIZATIONS, () => {
       then("localizer.localizations is localizations", () => {
         expect(localizer["localizations"]).toBe(localizations);
       });
+
+      then("`localizer.localizations` getter exists", () => {
+        expect(hasGetter(localizer, "localizations")).toBe(true);
+      });
     });
   });
 

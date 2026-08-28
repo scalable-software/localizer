@@ -70,6 +70,14 @@ This walkthrough demonstrates the simplest usage of the Localizer before diving 
    const localizer = new Localizer(localizations, "de");
    ```
 
+   Or let it seed from the user's persisted choice, falling back to the browser language:
+
+   ```js
+   const localizer = new Localizer(localizations, { storage: "app.language" });
+   ```
+
+   - `storage` names a `localStorage` key that your application writes when the user picks a language. The Localizer only ever reads it — once, at construction.
+
 4. **Read** the resolved lexicon:
 
    ```js
@@ -139,7 +147,8 @@ The Localizer has a simple operational lifecycle:
 - **Construction**
 
 1. Stores the provided localization bundles.
-2. Normalizes the initial language code.
+2. Stores the options (a bare string is treated as `{ language }`).
+3. Seeds the language: `options.language`, else the value persisted at `options.storage`, else `navigator.language` — normalized to the base lowercase code.
 
 - **`initialize()`**
 
@@ -175,6 +184,19 @@ type Localizations<T extends object> = Record<string, T | undefined>;
 
 - The constructor validates the record: a non-object, `null`, or array value throws `Invalid localizations value: <value>`. Bundle contents are not validated.
 
+- **`options`** (`Options`, readonly)
+- The constructor options, exposed through `localizer.options`. Both fields are optional:
+
+```ts
+type Options = {
+  language?: string; // explicit initial language; wins over storage
+  storage?: string; // localStorage key holding the persisted language
+};
+```
+
+- `storage` is opt-in and has no default: without it, `localStorage` is never touched. With it, the key is read once at construction and never written — persisting the choice is the application's job. An absent or empty value, or a `localStorage` that throws (cookies / site data blocked, sandboxed frame), falls through to the browser language.
+- A non-object value throws `Invalid options value: <value>`; a non-string field throws `Invalid options value: <field> is invalid`.
+
 #### 4.1.2 Resolution Order
 
 When `lexicon` is read, the Localizer resolves bundles in this order:
@@ -193,10 +215,10 @@ The Localizer exposes two key state concepts: the active language and the resolv
 
 - **`language`** (`string`)
   - The active language used for lexicon lookup.
-  - Defaults to `navigator.language`, normalized to the base lowercase language during construction.
-  - Example: an initial language of `en-US` becomes `en`.
+  - Seeded once at construction, in this order: `options.language`, else the value persisted at `localStorage[options.storage]` (when `storage` is configured and holds a value), else `navigator.language`.
+  - The seed is normalized to the base lowercase language: `en-US` becomes `en`, `nl-NL` becomes `nl`. Seeding does not emit `onlanguagechange`.
   - Later assignments through `language` or `setLanguage()` are stored as provided.
-  - Falsy assignments are ignored; a non-string value throws `Invalid language value: <value>`. The constructor argument is validated the same way before normalization.
+  - Falsy assignments are ignored; a non-string value throws `Invalid language value: <value>`.
 
 - **`lexicon`** (`T`)
   - The resolved bundle for the current language.
@@ -236,6 +258,8 @@ public get lexicon(): T {
 - Prefer base language codes such as `en`, `de`, and `fr` when setting `language` after construction.
 - Provide an `en` bundle if you want a stable fallback.
 - Treat `lexicon` as the primary runtime API for reading localized values.
+- Namespace the `storage` key to your application (`app.language`), or per user (`app.<userId>.language`) — `localStorage` is per origin, not per user, so a bare key like `language` would be shared by every app on the same origin.
+- Keep the Localizer read-only: the component that offers the language choice writes the key and dispatches `onappconfigchange`; the Localizer picks the change up through the gesture.
 
 ### 4.3 Operations
 

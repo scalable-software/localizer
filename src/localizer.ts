@@ -52,7 +52,7 @@ export class Localizer<T extends object> extends EventTarget {
 
     this.localizations = localizations;
 
-    this._language = this._normalize(language);
+    this._language = this._normalize(Validate.language(language));
   }
 
   /**

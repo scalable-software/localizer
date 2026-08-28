@@ -178,6 +178,17 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("Localizer instantiated with `{ language: \"nl-NL\" }` as options", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, { language: "nl-NL" });
+    });
+
+    then("`localizer.language` is seeded to `\"nl\"`", () => {
+      expect(localizer.language).toBe("nl");
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

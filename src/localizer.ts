@@ -67,7 +67,7 @@ export class Localizer<T extends object> extends EventTarget {
     const normalized = this._normalizeOptions(options);
     this._options = Validate.options(normalized);
 
-    const language = this._normalizeLanguage(this._options.language);
+    const language = this._normalizeLanguage(this._options);
     this._language = Validate.language(language);
   }
 
@@ -229,12 +229,22 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Resolve the initial language and normalize it to the base lowercase code
-   * Resolution order: the explicit option, else the browser language
+   * Resolution order: the explicit option, else the persisted language at
+   * the configured storage key, else the browser language
    * @category Utility
    * @hidden
    */
-  private _normalizeLanguage = (language?: string): string => {
-    const locale = language ?? navigator.language;
+  private _normalizeLanguage = ({ language, storage }: Options): string => {
+    const locale = language ?? this._persisted(storage) ?? navigator.language;
     return locale.split("-")[0].toLowerCase();
   };
+
+  /**
+   * Read the persisted language from localStorage, if a key is configured
+   * Returns null when no key is configured or nothing is persisted. Never writes.
+   * @category Utility
+   * @hidden
+   */
+  private _persisted = (key?: string): string | null =>
+    key ? localStorage.getItem(key) : null;
 }

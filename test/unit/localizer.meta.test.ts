@@ -19,6 +19,10 @@ metadata("Data", () => {
         then("Data has LOCALIZATIONS property", () => {
           expect(Data.LOCALIZATIONS).toBe("localizations");
         });
+
+        then("`Data.OPTIONS` exists", () => {
+          expect(Data.OPTIONS).toBeDefined();
+        });
       });
     });
   });

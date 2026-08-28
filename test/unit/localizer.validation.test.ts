@@ -152,6 +152,33 @@ validation(Data.OPTIONS, () => {
       then("`Validate.options` static method exists", () => {
         expect(Validate.options).toBeDefined();
       });
+
+      and("`value` is `{ language: \"de\", storage: \"app.language\" }`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = { language: "de", storage: "app.language" };
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          let result: any;
+          beforeEach(() => {
+            try {
+              result = Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("result is `value`", () => {
+            expect(result).toBe(value);
+          });
+        });
+      });
     });
   });
 });

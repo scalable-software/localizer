@@ -74,15 +74,10 @@
   },
   "Gestures": {
     "onappconfigchange": {
-      "description": "A window-level custom event used to synchronize the Localizer with application configuration changes.",
-      "listensWhen": "after `initialize()` has been called",
-      "payload": {
-        "detail": {
-          "language": "optional string"
-        }
-      },
-      "effects": {
-        "operation": "set `language` from `detail.language` when present"
+      "description": "A window-level custom event used to synchronize the Localizer with application configuration changes. Observed only after `initialize()` has been called and until `dispose()`. The event `detail` may carry an optional `language` string.",
+      "triggers": {
+        "operation": "setLanguage",
+        "condition": "on window, after initialize(), when detail.language is present"
       }
     }
   }

@@ -305,6 +305,53 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`localStorage.setItem` is observed", () => {
+    let setItem: jasmine.Spy;
+    beforeEach(() => {
+      setItem = spyOn(localStorage, "setItem").and.callThrough();
+      spyOn(localStorage, "getItem").and.returnValue("nl");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` and initialized", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+        localizer.initialize();
+      });
+      afterEach(() => {
+        localizer.dispose();
+      });
+
+      when("`localizer.setLanguage(\"de\")` is called", () => {
+        beforeEach(() => {
+          localizer.setLanguage("de");
+        });
+
+        then("`localStorage.setItem` is not called", () => {
+          expect(setItem).not.toHaveBeenCalled();
+        });
+      });
+
+      when("window dispatches `onappconfigchange` with `{ language: \"fr\" }`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { language: "fr" },
+            }),
+          );
+        });
+
+        then("`localizer.language` is `\"fr\"`", () => {
+          expect(localizer.language).toBe("fr");
+        });
+
+        then("`localStorage.setItem` is not called", () => {
+          expect(setItem).not.toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

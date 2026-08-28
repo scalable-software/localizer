@@ -4,6 +4,7 @@ export {
   Operation,
   Event,
   Gesture,
+  type Language,
   type Localizations,
   type Options,
 } from "./localizer.meta.js";

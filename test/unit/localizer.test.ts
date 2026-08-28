@@ -51,6 +51,19 @@ data(Data.LOCALIZATIONS, () => {
   });
 });
 
+data(Data.OPTIONS, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({});
+    });
+
+    then("`localizer.options` getter exists", () => {
+      expect(localizer.options).toBeDefined();
+    });
+  });
+});
+
 state(State.LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;

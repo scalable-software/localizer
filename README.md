@@ -119,6 +119,8 @@ For more details on **data resolution**, **state**, **operations**, and **events
 
 - **Metadata** (`localizer.meta.ts`): Defines public constants and types for data, state, operations, events, gestures, and localization bundles.
 
+- **Validation** (`localizer.validation.ts`): Enforces the declared value domains at runtime through a single `Validate` class. `Validate.language` accepts a string and `Validate.localizations` accepts a record of bundles; anything else throws `Invalid <name> value: <value>`.
+
 - **Class** (`localizer.ts`): Implements the EventTarget-based Localizer, including language normalization, lexicon resolution, event dispatch, and application event integration.
 
 - **Entry Point** (`index.ts`): Re-exports the Localizer and its public metadata surface.
@@ -126,6 +128,7 @@ For more details on **data resolution**, **state**, **operations**, and **events
 > **Separation of Concerns**
 >
 > - **Metadata** for shared names and contracts
+> - **Validation** for runtime enforcement of those contracts
 > - **TypeScript** for runtime behavior
 > - **Tests** for public API verification
 
@@ -170,6 +173,8 @@ The Localizer stores language bundles in a `Localizations<T>` map keyed by langu
 type Localizations<T extends object> = Record<string, T | undefined>;
 ```
 
+- The constructor validates the record: a non-object, `null`, or array value throws `Invalid localizations value: <value>`. Bundle contents are not validated.
+
 #### 4.1.2 Resolution Order
 
 When `lexicon` is read, the Localizer resolves bundles in this order:
@@ -191,6 +196,7 @@ The Localizer exposes two key state concepts: the active language and the resolv
   - Defaults to `navigator.language`, normalized to the base lowercase language during construction.
   - Example: an initial language of `en-US` becomes `en`.
   - Later assignments through `language` or `setLanguage()` are stored as provided.
+  - Falsy assignments are ignored; a non-string value throws `Invalid language value: <value>`. The constructor argument is validated the same way before normalization.
 
 - **`lexicon`** (`T`)
   - The resolved bundle for the current language.

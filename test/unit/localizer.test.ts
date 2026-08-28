@@ -30,6 +30,25 @@ data(Data.LOCALIZATIONS, () => {
       });
     });
   });
+
+  given("Localizer instantiated with `null` as localizations", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer(null as unknown as Localizations<object>);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid localizations value: null`", () => {
+      expect(error.message).toBe("Invalid localizations value: null");
+    });
+  });
 });
 
 state(State.LANGUAGE, () => {
@@ -65,6 +84,26 @@ state(State.LANGUAGE, () => {
           expect(localizer.language).toBe(language);
         });
       });
+
+      when("`localizer.language` is set to `42`", () => {
+        let error: Error;
+        beforeEach(() => {
+          try {
+            // @ts-expect-error
+            localizer.language = 42;
+          } catch (err) {
+            error = err as Error;
+          }
+        });
+
+        then("an error is thrown", () => {
+          expect(error).toBeDefined();
+        });
+
+        then("error message is `Invalid language value: 42`", () => {
+          expect(error.message).toBe("Invalid language value: 42");
+        });
+      });
     });
   });
 
@@ -76,6 +115,26 @@ state(State.LANGUAGE, () => {
 
     then("localizer.language is set to language", () => {
       expect(localizer.language).toBe("de");
+    });
+  });
+
+  given("Localizer instantiated with `42` as language", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        // @ts-expect-error
+        new Localizer({}, 42);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid language value: 42`", () => {
+      expect(error.message).toBe("Invalid language value: 42");
     });
   });
 });
@@ -108,7 +167,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is lexicon for language", () => {
-          expect(localizer.lexicon).toBe(localizations[language]);
+          expect(localizer.lexicon).toBe(localizations[language]!);
         });
       });
       and("localizer.setLanguage called with non-existing language", () => {
@@ -119,7 +178,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is lexicon for 'en'", () => {
-          expect(localizer.lexicon).toBe(localizations.en);
+          expect(localizer.lexicon).toBe(localizations.en!);
         });
       });
     });
@@ -148,7 +207,7 @@ state(State.LEXICON, () => {
         });
 
         then("localizer.lexicon is first available lexicon", () => {
-          expect(localizer.lexicon).toBe(localizations.de);
+          expect(localizer.lexicon).toBe(localizations.de!);
         });
       });
     });

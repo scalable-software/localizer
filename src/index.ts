@@ -7,4 +7,6 @@ export {
   type Localizations,
 } from "./localizer.meta.js";
 
+export { Validate } from "./localizer.validation.js";
+
 export { Localizer } from "./localizer.js";

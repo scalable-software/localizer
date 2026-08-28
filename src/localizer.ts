@@ -2,6 +2,9 @@ import { Handler } from "@scalable.software/component";
 
 import { Event, Gesture, type Localizations } from "./localizer.meta.js";
 
+// Validation
+import { Validate } from "./localizer.validation.js";
+
 /**
  * Localizer addon for components
  * @category Utilities
@@ -47,9 +50,9 @@ export class Localizer<T extends object> extends EventTarget {
   ) {
     super();
 
-    this.localizations = localizations;
+    this.localizations = Validate.localizations(localizations);
 
-    this._language = this._normalize(language);
+    this._language = this._normalize(Validate.language(language));
   }
 
   /**
@@ -89,8 +92,16 @@ export class Localizer<T extends object> extends EventTarget {
    * @category State
    */
   public set language(language: string) {
-    if (!language || this._language === language) return;
+    // Normalize — falsy values are ignored
+    if (!language) return;
 
+    // Validate
+    language = Validate.language(language);
+
+    // Guard
+    if (this._language === language) return;
+
+    // Mutate
     this._language = language;
 
     this.dispatchEvent(

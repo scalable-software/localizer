@@ -65,6 +65,26 @@ state(State.LANGUAGE, () => {
           expect(localizer.language).toBe(language);
         });
       });
+
+      when("`localizer.language` is set to `42`", () => {
+        let error: Error;
+        beforeEach(() => {
+          try {
+            // @ts-expect-error
+            localizer.language = 42;
+          } catch (err) {
+            error = err as Error;
+          }
+        });
+
+        then("an error is thrown", () => {
+          expect(error).toBeDefined();
+        });
+
+        then("error message is `Invalid language value: 42`", () => {
+          expect(error.message).toBe("Invalid language value: 42");
+        });
+      });
     });
   });
 

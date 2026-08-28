@@ -189,6 +189,25 @@ state(State.LANGUAGE, () => {
     });
   });
 
+  given("`localStorage[\"app.language\"]` is `\"nl-NL\"`", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.callFake((key: string) =>
+        key === "app.language" ? "nl-NL" : null,
+      );
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded to `\"nl\"`", () => {
+        expect(localizer.language).toBe("nl");
+      });
+    });
+  });
+
   given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {

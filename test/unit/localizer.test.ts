@@ -7,7 +7,7 @@ import {
   Gesture,
 } from "@scalable.software/localizer";
 
-import { type Localizations } from "@scalable.software/localizer";
+import { type Localizations, type Options } from "@scalable.software/localizer";
 
 data(Data.LOCALIZATIONS, () => {
   given("Localizations defined", () => {
@@ -47,6 +47,55 @@ data(Data.LOCALIZATIONS, () => {
 
     then("error message is `Invalid localizations value: null`", () => {
       expect(error.message).toBe("Invalid localizations value: null");
+    });
+  });
+});
+
+data(Data.OPTIONS, () => {
+  given("Localizer instantiated", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({});
+    });
+
+    then("`localizer.options` getter exists", () => {
+      expect(localizer.options).toBeDefined();
+    });
+
+    and("`localizer.options` getter exists", () => {
+      then("`localizer.options` is `{}`", () => {
+        expect(localizer.options).toEqual({});
+      });
+    });
+  });
+
+  given("Localizer instantiated with `\"de\"` as options", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, "de");
+    });
+
+    then("`localizer.options` is `{ language: \"de\" }`", () => {
+      expect(localizer.options).toEqual({ language: "de" });
+    });
+  });
+
+  given("Localizer instantiated with `null` as options", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer({}, null as unknown as Options);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid options value: null`", () => {
+      expect(error.message).toBe("Invalid options value: null");
     });
   });
 });
@@ -129,7 +178,207 @@ state(State.LANGUAGE, () => {
     });
   });
 
-  given("Localizer instantiated with `42` as language", () => {
+  given("Localizer instantiated with `{ language: \"nl-NL\" }` as options", () => {
+    let localizer: Localizer<object>;
+    beforeEach(() => {
+      localizer = new Localizer({}, { language: "nl-NL" });
+    });
+
+    then("`localizer.language` is seeded to `\"nl\"`", () => {
+      expect(localizer.language).toBe("nl");
+    });
+  });
+
+  given("`localStorage[\"app.language\"]` is `\"nl-NL\"`", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.callFake((key: string) =>
+        key === "app.language" ? "nl-NL" : null,
+      );
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded to `\"nl\"`", () => {
+        expect(localizer.language).toBe("nl");
+      });
+    });
+
+    and(
+      "Localizer instantiated with `{ language: \"de\", storage: \"app.language\" }` as options",
+      () => {
+        let localizer: Localizer<object>;
+        beforeEach(() => {
+          localizer = new Localizer(
+            {},
+            { language: "de", storage: "app.language" },
+          );
+        });
+
+        then("`localizer.language` is seeded to `\"de\"`", () => {
+          expect(localizer.language).toBe("de");
+        });
+      },
+    );
+  });
+
+  given("`localStorage[\"app.language\"]` is absent", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.returnValue(null);
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded from the browser language", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
+  });
+
+  given("`localStorage[\"app.language\"]` is `\"\"`", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.returnValue("");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded from the browser language", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
+  });
+
+  given("`localStorage.getItem` throws", () => {
+    beforeEach(() => {
+      spyOn(localStorage, "getItem").and.throwError("SecurityError");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      let error: Error | undefined;
+      beforeEach(() => {
+        try {
+          localizer = new Localizer({}, { storage: "app.language" });
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("no error is thrown", () => {
+        expect(error).toBeUndefined();
+      });
+
+      then("`localizer.language` is seeded from the browser language", () => {
+        const language = navigator.language.split("-")[0].toLowerCase();
+        expect(localizer.language).toBe(language);
+      });
+    });
+  });
+
+  given("`localStorage.getItem` is observed", () => {
+    let getItem: jasmine.Spy;
+    beforeEach(() => {
+      getItem = spyOn(localStorage, "getItem").and.callThrough();
+    });
+
+    and("Localizer instantiated without `storage`", () => {
+      beforeEach(() => {
+        new Localizer({});
+      });
+
+      then("`localStorage.getItem` is not called", () => {
+        expect(getItem).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  given("`localStorage.setItem` is observed", () => {
+    let setItem: jasmine.Spy;
+    beforeEach(() => {
+      setItem = spyOn(localStorage, "setItem").and.callThrough();
+      spyOn(localStorage, "getItem").and.returnValue("nl");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` and initialized", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+        localizer.initialize();
+      });
+      afterEach(() => {
+        localizer.dispose();
+      });
+
+      when("`localizer.setLanguage(\"de\")` is called", () => {
+        beforeEach(() => {
+          localizer.setLanguage("de");
+        });
+
+        then("`localStorage.setItem` is not called", () => {
+          expect(setItem).not.toHaveBeenCalled();
+        });
+      });
+
+      when("window dispatches `onappconfigchange` with `{ language: \"fr\" }`", () => {
+        beforeEach(() => {
+          window.dispatchEvent(
+            new CustomEvent(Gesture.ON_APP_CONFIG_CHANGE, {
+              detail: { language: "fr" },
+            }),
+          );
+        });
+
+        then("`localizer.language` is `\"fr\"`", () => {
+          expect(localizer.language).toBe("fr");
+        });
+
+        then("`localStorage.setItem` is not called", () => {
+          expect(setItem).not.toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+  given("`onlanguagechange` is observed on `Localizer.prototype`", () => {
+    let dispatchEvent: jasmine.Spy;
+    beforeEach(() => {
+      dispatchEvent = spyOn(
+        Localizer.prototype,
+        "dispatchEvent",
+      ).and.callThrough();
+      spyOn(localStorage, "getItem").and.returnValue("nl");
+    });
+
+    and("Localizer instantiated with `{ storage: \"app.language\" }` as options", () => {
+      let localizer: Localizer<object>;
+      beforeEach(() => {
+        localizer = new Localizer({}, { storage: "app.language" });
+      });
+
+      then("`localizer.language` is seeded to `\"nl\"`", () => {
+        expect(localizer.language).toBe("nl");
+      });
+
+      then("no event is dispatched", () => {
+        expect(dispatchEvent).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  given("Localizer instantiated with `42` as options", () => {
     let error: Error;
     beforeEach(() => {
       try {
@@ -144,8 +393,8 @@ state(State.LANGUAGE, () => {
       expect(error).toBeDefined();
     });
 
-    then("error message is `Invalid language value: 42`", () => {
-      expect(error.message).toBe("Invalid language value: 42");
+    then("error message is `Invalid options value: 42`", () => {
+      expect(error.message).toBe("Invalid options value: 42");
     });
   });
 });

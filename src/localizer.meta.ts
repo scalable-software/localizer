@@ -5,6 +5,7 @@
  */
 export const Data = {
   LOCALIZATIONS: "localizations",
+  OPTIONS: "options",
 } as const;
 
 /**
@@ -85,3 +86,18 @@ export type Gesture = (typeof Gesture)[keyof typeof Gesture];
  * @category Metadata: Data
  */
 export type Localizations<T extends object> = Record<string, T | undefined>;
+
+/**
+ * Constructor options
+ *
+ * `language` is an explicit initial language and wins over storage.
+ * `storage` names a localStorage key holding the persisted language; it is
+ * read once at construction and never written. When absent, storage is not
+ * consulted.
+ *
+ * @category Metadata: Data
+ */
+export type Options = {
+  language?: string;
+  storage?: string;
+};

@@ -141,3 +141,107 @@ validation(Data.LOCALIZATIONS, () => {
     });
   });
 });
+
+validation(Data.OPTIONS, () => {
+  given("Validate imported", () => {
+    then("`Validate` exists", () => {
+      expect(Validate).toBeDefined();
+    });
+
+    and("`Validate` exists", () => {
+      then("`Validate.options` static method exists", () => {
+        expect(Validate.options).toBeDefined();
+      });
+
+      and("`value` is `{ language: \"de\", storage: \"app.language\" }`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = { language: "de", storage: "app.language" };
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          let result: any;
+          beforeEach(() => {
+            try {
+              result = Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("result is `value`", () => {
+            expect(result).toBe(value);
+          });
+        });
+      });
+
+      and("`value` is `null`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = null;
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then("error message is `Invalid options value: null`", () => {
+              expect((error as Error).message).toEqual(
+                "Invalid options value: null",
+              );
+            });
+          });
+        });
+      });
+
+      and("`value` is `{ storage: 42 }`", () => {
+        let value: any;
+        beforeEach(() => {
+          value = { storage: 42 };
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          and("an error is thrown", () => {
+            then(
+              "error message is `Invalid options value: storage is invalid`",
+              () => {
+                expect((error as Error).message).toEqual(
+                  "Invalid options value: storage is invalid",
+                );
+              },
+            );
+          });
+        });
+      });
+    });
+  });
+});

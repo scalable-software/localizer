@@ -1,6 +1,11 @@
 import { Handler } from "@scalable.software/component";
 
-import { Event, Gesture, type Localizations } from "./localizer.meta.js";
+import {
+  Event,
+  Gesture,
+  type Localizations,
+  type Options,
+} from "./localizer.meta.js";
 
 // Validation
 import { Validate } from "./localizer.validation.js";
@@ -40,19 +45,30 @@ export class Localizer<T extends object> extends EventTarget {
   protected localizations: Localizations<T> = {};
 
   /**
+   * Constructor options: explicit initial language and persisted-language storage key
+   * @category Data
+   * @hidden
+   */
+  private _options: Options = {};
+
+  /**
    * Create a localizer with the available language bundles and initial language
    * The constructor normalizes the initial language to the base lowercase code
    * @category Configuration
    */
   constructor(
     localizations: Localizations<T>,
-    language: string = navigator.language,
+    options: string | Options = {},
   ) {
     super();
 
     this.localizations = Validate.localizations(localizations);
 
-    this._language = this._normalize(Validate.language(language));
+    const normalized = this._normalizeOptions(options);
+    this._options = Validate.options(normalized);
+
+    const language = this._normalizeLanguage(this._options);
+    this._language = Validate.language(language);
   }
 
   /**
@@ -76,6 +92,14 @@ export class Localizer<T extends object> extends EventTarget {
     if (first) return first;
 
     throw new Error("Localizer: no localization bundles are available.");
+  }
+
+  /**
+   * Get the constructor options the localizer was created with
+   * @category Data
+   */
+  public get options(): Options {
+    return this._options;
   }
 
   /**
@@ -195,9 +219,39 @@ export class Localizer<T extends object> extends EventTarget {
   };
 
   /**
-   * Normalize locale strings to the base lowercase language code
+   * Normalize the second constructor argument to an options object
+   * A bare string is the positional initial language
    * @category Utility
    * @hidden
    */
-  private _normalize = (locale: string) => locale.split("-")[0].toLowerCase();
+  private _normalizeOptions = (options: string | Options): Options =>
+    typeof options === "string" ? { language: options } : options;
+
+  /**
+   * Resolve the initial language and normalize it to the base lowercase code
+   * Resolution order: the explicit option, else the persisted language at
+   * the configured storage key, else the browser language
+   * @category Utility
+   * @hidden
+   */
+  private _normalizeLanguage = ({ language, storage }: Options): string =>
+    (language ?? this._persisted(storage) ?? navigator.language)
+      .split("-")[0]
+      .toLowerCase();
+
+  /**
+   * Read the persisted language from localStorage, if a key is configured
+   * Returns null when no key is configured, the value is absent or empty, or
+   * `localStorage` access throws (cookies / site data blocked, sandboxed frame).
+   * @category Utility
+   * @hidden
+   */
+  private _persisted = (key?: string): string | null => {
+    if (!key) return null;
+    try {
+      return localStorage.getItem(key) || null;
+    } catch {
+      return null;
+    }
+  };
 }

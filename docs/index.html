@@ -41,6 +41,12 @@
 <li><p><strong>Instantiate</strong> the Localizer with an initial language:</p>
 <pre><code class="language-js"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">localizer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Localizer</span><span class="hl-1">(</span><span class="hl-4">localizations</span><span class="hl-1">, </span><span class="hl-2">&quot;de&quot;</span><span class="hl-1">);</span>
 </code><button>Copy</button></pre>
+<p>Or let it seed from the user&#39;s persisted choice, falling back to the browser language:</p>
+<pre><code class="language-js"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">localizer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Localizer</span><span class="hl-1">(</span><span class="hl-4">localizations</span><span class="hl-1">, { </span><span class="hl-4">storage:</span><span class="hl-1"> </span><span class="hl-2">&quot;app.language&quot;</span><span class="hl-1"> });</span>
+</code><button>Copy</button></pre>
+<ul>
+<li><code>storage</code> names a <code>localStorage</code> key that your application writes when the user picks a language. The Localizer only ever reads it — once, at construction.</li>
+</ul>
 </li>
 <li><p><strong>Read</strong> the resolved lexicon:</p>
 <pre><code class="language-js"><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-4">localizer</span><span class="hl-1">.</span><span class="hl-4">lexicon</span><span class="hl-1">.</span><span class="hl-4">greeting</span><span class="hl-1">);</span>
@@ -71,6 +77,8 @@
 <a id="md:3-architectural-overview" class="tsd-anchor"></a><h2><a href="#md:3-architectural-overview">3. Architectural Overview</a></h2><a id="md:31-composition" class="tsd-anchor"></a><h3><a href="#md:31-composition">3.1 Composition</a></h3><ul>
 <li><p><strong>Metadata</strong> (<code>localizer.meta.ts</code>): Defines public constants and types for data, state, operations, events, gestures, and localization bundles.</p>
 </li>
+<li><p><strong>Validation</strong> (<code>localizer.validation.ts</code>): Enforces the declared value domains at runtime through a single <code>Validate</code> class. <code>Validate.language</code> accepts a string and <code>Validate.localizations</code> accepts a record of bundles; anything else throws <code>Invalid &lt;name&gt; value: &lt;value&gt;</code>.</p>
+</li>
 <li><p><strong>Class</strong> (<code>localizer.ts</code>): Implements the EventTarget-based Localizer, including language normalization, lexicon resolution, event dispatch, and application event integration.</p>
 </li>
 <li><p><strong>Entry Point</strong> (<code>index.ts</code>): Re-exports the Localizer and its public metadata surface.</p>
@@ -80,6 +88,7 @@
 <p><strong>Separation of Concerns</strong></p>
 <ul>
 <li><strong>Metadata</strong> for shared names and contracts</li>
+<li><strong>Validation</strong> for runtime enforcement of those contracts</li>
 <li><strong>TypeScript</strong> for runtime behavior</li>
 <li><strong>Tests</strong> for public API verification</li>
 </ul>
@@ -90,7 +99,8 @@
 </ul>
 <ol>
 <li>Stores the provided localization bundles.</li>
-<li>Normalizes the initial language code.</li>
+<li>Stores the options (a bare string is treated as <code>{ language }</code>).</li>
+<li>Seeds the language: <code>options.language</code>, else the value persisted at <code>options.storage</code>, else <code>navigator.language</code> — normalized to the base lowercase code.</li>
 </ol>
 <ul>
 <li><strong><code>initialize()</code></strong></li>
@@ -117,6 +127,20 @@
 </ul>
 <pre><code class="language-ts"><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-7">Localizations</span><span class="hl-1">&lt;</span><span class="hl-7">T</span><span class="hl-1"> </span><span class="hl-5">extends</span><span class="hl-1"> </span><span class="hl-7">object</span><span class="hl-1">&gt; = </span><span class="hl-7">Record</span><span class="hl-1">&lt;</span><span class="hl-7">string</span><span class="hl-1">, </span><span class="hl-7">T</span><span class="hl-1"> | </span><span class="hl-7">undefined</span><span class="hl-1">&gt;;</span>
 </code><button>Copy</button></pre>
+<ul>
+<li><p>The constructor validates the record: a non-object, <code>null</code>, or array value throws <code>Invalid localizations value: &lt;value&gt;</code>. Bundle contents are not validated.</p>
+</li>
+<li><p><strong><code>options</code></strong> (<code>Options</code>, readonly)</p>
+</li>
+<li><p>The constructor options, exposed through <code>localizer.options</code>. Both fields are optional:</p>
+</li>
+</ul>
+<pre><code class="language-ts"><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-7">Options</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">language</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">; </span><span class="hl-8">// explicit initial language; wins over storage</span><br/><span class="hl-1">  </span><span class="hl-4">storage</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">; </span><span class="hl-8">// localStorage key holding the persisted language</span><br/><span class="hl-1">};</span>
+</code><button>Copy</button></pre>
+<ul>
+<li><code>storage</code> is opt-in and has no default: without it, <code>localStorage</code> is never touched. With it, the key is read once at construction and never written — persisting the choice is the application&#39;s job. An absent or empty value, or a <code>localStorage</code> that throws (cookies / site data blocked, sandboxed frame), falls through to the browser language.</li>
+<li>A non-object value throws <code>Invalid options value: &lt;value&gt;</code>; a non-string field throws <code>Invalid options value: &lt;field&gt; is invalid</code>.</li>
+</ul>
 <a id="md:412-resolution-order" class="tsd-anchor"></a><h4><a href="#md:412-resolution-order">4.1.2 Resolution Order</a></h4><p>When <code>lexicon</code> is read, the Localizer resolves bundles in this order:</p>
 <ol>
 <li>The current language value</li>
@@ -129,9 +153,10 @@
 <li><p><strong><code>language</code></strong> (<code>string</code>)</p>
 <ul>
 <li>The active language used for lexicon lookup.</li>
-<li>Defaults to <code>navigator.language</code>, normalized to the base lowercase language during construction.</li>
-<li>Example: an initial language of <code>en-US</code> becomes <code>en</code>.</li>
+<li>Seeded once at construction, in this order: <code>options.language</code>, else the value persisted at <code>localStorage[options.storage]</code> (when <code>storage</code> is configured and holds a value), else <code>navigator.language</code>.</li>
+<li>The seed is normalized to the base lowercase language: <code>en-US</code> becomes <code>en</code>, <code>nl-NL</code> becomes <code>nl</code>. Seeding does not emit <code>onlanguagechange</code>.</li>
 <li>Later assignments through <code>language</code> or <code>setLanguage()</code> are stored as provided.</li>
+<li>Falsy assignments are ignored; a non-string value throws <code>Invalid language value: &lt;value&gt;</code>.</li>
 </ul>
 </li>
 <li><p><strong><code>lexicon</code></strong> (<code>T</code>)</p>
@@ -143,7 +168,7 @@
 </ul>
 <a id="md:422-internal-vs-resolved-state" class="tsd-anchor"></a><h4><a href="#md:422-internal-vs-resolved-state">4.2.2 Internal vs. Resolved State</a></h4><ol>
 <li><p><strong>Internal state</strong></p>
-<pre><code class="language-ts"><span class="hl-4">private</span><span class="hl-1"> </span><span class="hl-8">_language</span><span class="hl-1">: </span><span class="hl-4">string</span><span class="hl-1">;</span>
+<pre><code class="language-ts"><span class="hl-4">private</span><span class="hl-1"> </span><span class="hl-9">_language</span><span class="hl-1">: </span><span class="hl-4">string</span><span class="hl-1">;</span>
 </code><button>Copy</button></pre>
 <p>This stores the active language used for lookup.</p>
 </li>
@@ -159,6 +184,8 @@
 <li>Prefer base language codes such as <code>en</code>, <code>de</code>, and <code>fr</code> when setting <code>language</code> after construction.</li>
 <li>Provide an <code>en</code> bundle if you want a stable fallback.</li>
 <li>Treat <code>lexicon</code> as the primary runtime API for reading localized values.</li>
+<li>Namespace the <code>storage</code> key to your application (<code>app.language</code>), or per user (<code>app.&lt;userId&gt;.language</code>) — <code>localStorage</code> is per origin, not per user, so a bare key like <code>language</code> would be shared by every app on the same origin.</li>
+<li>Keep the Localizer read-only: the component that offers the language choice writes the key and dispatches <code>onappconfigchange</code>; the Localizer picks the change up through the gesture.</li>
 </ul>
 <a id="md:43-operations" class="tsd-anchor"></a><h3><a href="#md:43-operations">4.3 Operations</a></h3><p>The Localizer exposes a small imperative API for lifecycle and language updates.</p>
 <a id="md:431-definition" class="tsd-anchor"></a><h4><a href="#md:431-definition">4.3.1 Definition</a></h4><ol>
@@ -173,7 +200,7 @@
 <li><p><strong><code>onlanguagechange</code></strong>: Fired when <code>language</code> changes to a new truthy value.</p>
 </li>
 <li><p>Event payload:</p>
-<pre><code class="language-js"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-8">detail</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-8">language</span><span class="hl-1">: </span><span class="hl-2">&quot;de&quot;</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
+<pre><code class="language-js"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-9">detail</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-9">language</span><span class="hl-1">: </span><span class="hl-2">&quot;de&quot;</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
 </li>
 </ul>

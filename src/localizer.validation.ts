@@ -2,7 +2,7 @@
  * @module Localizer
  */
 
-import { type Localizations } from "./localizer.meta.js";
+import { type Localizations, type Options } from "./localizer.meta.js";
 
 /**
  * Runtime enforcement of the value domains declared in `localizer.meta.ts`
@@ -36,5 +36,29 @@ export class Validate {
       throw new Error(`Invalid localizations value: ${value}`);
     }
     return value as Localizations<T>;
+  };
+
+  /**
+   * Validates that the value is a constructor options object.
+   * Throws if the value is not a non-null, non-array object, or if a present
+   * `language` or `storage` field is not a string.
+   * @category Validation
+   */
+  public static options = (value: Options) => {
+    const valid =
+      typeof value === "object" && value !== null && !Array.isArray(value);
+    if (!valid) {
+      throw new Error(`Invalid options value: ${value}`);
+    }
+
+    const fields: (keyof Options)[] = ["language", "storage"];
+    for (const field of fields) {
+      const present = value[field] !== undefined;
+      if (present && typeof value[field] !== "string") {
+        throw new Error(`Invalid options value: ${field} is invalid`);
+      }
+    }
+
+    return value as Options;
   };
 }

@@ -139,6 +139,12 @@ metadata(Metadata.CHANNEL, () => {
       then("Channel is an object", () => {
         expect(typeof Channel).toBe("object");
       });
+
+      when("Channel is an object", () => {
+        then("`Channel.CONFIGURATION` exists", () => {
+          expect(Channel.CONFIGURATION).toBeDefined();
+        });
+      });
     });
   });
 });

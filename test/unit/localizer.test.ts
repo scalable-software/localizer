@@ -1038,6 +1038,28 @@ gesture(Gesture.MESSAGE, () => {
             expect(errors).toEqual([]);
           });
         });
+
+        when("the configuration channel broadcasts language de with extra fields", () => {
+          beforeEach(async () => {
+            await announce({
+              type: Gesture.ON_APP_CONFIG_CHANGE,
+              language: "de",
+              coding: "ICD10",
+            });
+          });
+
+          then("localizer.language is de", () => {
+            expect(localizer.language).toBe("de");
+          });
+
+          then("onlanguagechange is emitted once", () => {
+            expect(onlanguagechange).toHaveBeenCalledTimes(1);
+          });
+
+          then("no error is thrown", () => {
+            expect(errors).toEqual([]);
+          });
+        });
       });
     });
   });

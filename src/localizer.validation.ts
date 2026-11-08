@@ -82,6 +82,10 @@ export class Validate {
       return false;
 
     const { type, language } = value as Record<string, unknown>;
-    return type === Gesture.ON_APP_CONFIG_CHANGE && typeof language === "string";
+    return (
+      type === Gesture.ON_APP_CONFIG_CHANGE &&
+      typeof language === "string" &&
+      language !== ""
+    );
   };
 }

@@ -16,6 +16,7 @@ declare const Metadata: {
   OPERATION: string;
   EVENT: string;
   GESTURE: string;
+  CHANNEL: string;
 };
 declare function state(state: string, fn: () => void): void;
 declare function operation(operation: string, fn: () => void): void;

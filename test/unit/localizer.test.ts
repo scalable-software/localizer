@@ -14,7 +14,7 @@ import { type Localizations, type Options } from "@scalable.software/localizer";
 const listenerCalls = (spy: jasmine.Spy, type: string) =>
   spy.calls.allArgs().filter(([name]) => name === type).length;
 
-const announce = (message: object): Promise<void> =>
+const announce = (message: unknown): Promise<void> =>
   new Promise((resolve) => {
     const witness = new BroadcastChannel(Channel.CONFIGURATION);
 
@@ -894,6 +894,42 @@ gesture(Gesture.MESSAGE, () => {
 
         then("localizer.language is unchanged", () => {
           expect(localizer.language).toBe("en");
+        });
+      });
+
+      and("onlanguagechange and window errors are observed", () => {
+        let onlanguagechange: jasmine.Spy;
+        let errors: unknown[];
+        const record = (event: ErrorEvent) => errors.push(event.error);
+
+        beforeEach(() => {
+          errors = [];
+          onlanguagechange = jasmine.createSpy("onlanguagechange");
+          localizer.onlanguagechange = onlanguagechange;
+          window.addEventListener("error", record);
+        });
+
+        afterEach(() => {
+          window.removeEventListener("error", record);
+          localizer.onlanguagechange = null;
+        });
+
+        when("the configuration channel broadcasts `null`", () => {
+          beforeEach(async () => {
+            await announce(null);
+          });
+
+          then("localizer.language is unchanged", () => {
+            expect(localizer.language).toBe("en");
+          });
+
+          then("onlanguagechange is not emitted", () => {
+            expect(onlanguagechange).not.toHaveBeenCalled();
+          });
+
+          then("no error is thrown", () => {
+            expect(errors).toEqual([]);
+          });
         });
       });
     });

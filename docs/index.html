@@ -34,7 +34,7 @@
 </code><button>Copy</button></pre>
 </li>
 <li><p><strong>Instantiate</strong> the Localizer with an initial language:</p>
-<pre><code class="language-js"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">localizer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Localizer</span><span class="hl-1">(</span><span class="hl-4">localizations</span><span class="hl-1">, </span><span class="hl-2">&quot;de&quot;</span><span class="hl-1">);</span>
+<pre><code class="language-js"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">localizer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Localizer</span><span class="hl-1">(</span><span class="hl-4">localizations</span><span class="hl-1">, { </span><span class="hl-4">language:</span><span class="hl-1"> </span><span class="hl-2">&quot;de&quot;</span><span class="hl-1"> });</span>
 </code><button>Copy</button></pre>
 <p>Alternatively, seed it from a persisted choice, falling back to the browser language:</p>
 <pre><code class="language-js"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">localizer</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Localizer</span><span class="hl-1">(</span><span class="hl-4">localizations</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">storage:</span><span class="hl-1"> </span><span class="hl-2">&quot;app.language&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">});</span>
@@ -71,6 +71,7 @@
 <a id="md:3-architectural-overview" class="tsd-anchor"></a><h2><a href="#md:3-architectural-overview">3. Architectural Overview</a></h2><a id="md:31-composition" class="tsd-anchor"></a><h3><a href="#md:31-composition">3.1 Composition</a></h3><ul>
 <li><strong>Metadata</strong> (<code>localizer.meta.ts</code>): Defines public constants and types for channels, data, state, operations, events, gestures, and localization bundles.</li>
 <li><strong>Validation</strong> (<code>localizer.validation.ts</code>): Validates language values, the localization container, and constructor options.</li>
+<li><strong>Storage</strong> (<code>localizer.storage.ts</code>): Internal read-only view of the persisted language in <code>localStorage</code>. It is not exported.</li>
 <li><strong>Class</strong> (<code>localizer.ts</code>): Implements language normalization, lexicon resolution, local event dispatch, and BroadcastChannel integration.</li>
 <li><strong>Entry Point</strong> (<code>index.ts</code>): Re-exports the Localizer and its public metadata surface.</li>
 </ul>
@@ -83,7 +84,7 @@
 </ul>
 <a id="md:32-lifecycle" class="tsd-anchor"></a><h3><a href="#md:32-lifecycle">3.2 Lifecycle</a></h3><a id="md:construction" class="tsd-anchor"></a><h4><a href="#md:construction">Construction</a></h4><ol>
 <li>Validates and stores the localization bundles.</li>
-<li>Normalizes and validates the options. A bare string becomes <code>{ language }</code>.</li>
+<li>Validates the options. They are read during construction and not kept.</li>
 <li>Resolves the initial language from the explicit option, configured storage key, or browser language.</li>
 <li>Normalizes the initial language to its base lowercase code.</li>
 </ol>
@@ -114,30 +115,6 @@
 </code><button>Copy</button></pre>
 <p>Individual bundle contents are not validated.</p>
 <p>The <code>localizations</code> getter exposes the supplied object. The property has no setter, but the returned object is not frozen.</p>
-<p><strong><code>options</code></strong></p>
-<p>The constructor accepts an options object with two optional fields:</p>
-<pre><code class="language-ts"><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-7">Options</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">language</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-4">storage</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">;</span><br/><span class="hl-1">};</span>
-</code><button>Copy</button></pre>
-<ul>
-<li><code>language</code> specifies the initial language and takes precedence over storage.</li>
-<li><code>storage</code> specifies the <code>localStorage</code> key containing a persisted language.</li>
-</ul>
-<p>Storage access is optional:</p>
-<ul>
-<li>Without a configured storage key, the Localizer does not read <code>localStorage</code>.</li>
-<li>With an explicit language, storage is not read.</li>
-<li>Otherwise, the configured key is read once during construction.</li>
-<li>An absent or empty stored value falls back to the browser language.</li>
-<li>If storage access throws, the Localizer falls back to the browser language.</li>
-<li>The Localizer never writes to storage.</li>
-</ul>
-<p>A non-object, <code>null</code>, or array options value throws:</p>
-<pre><code class="language-text">Invalid options value: &lt;value&gt;
-</code><button>Copy</button></pre>
-<p>A defined <code>language</code> or <code>storage</code> field that is not a string throws:</p>
-<pre><code class="language-text">Invalid options value: &lt;field&gt; is invalid
-</code><button>Copy</button></pre>
-<p>The <code>options</code> getter exposes the options object. The property has no setter, but the returned object is not frozen. Changing that object does not rerun initialization or language resolution.</p>
 <a id="md:412-resolution-order" class="tsd-anchor"></a><h4><a href="#md:412-resolution-order">4.1.2 Resolution Order</a></h4><p>When <code>lexicon</code> is read, the Localizer resolves bundles in this order:</p>
 <ol>
 <li>The current language value</li>
@@ -164,6 +141,29 @@
 <li>Truthy non-string assignments throw <code>Invalid language value: &lt;value&gt;</code>.</li>
 <li>Assigning the current language again does not emit an event.</li>
 </ul>
+<p><strong>Constructor options</strong></p>
+<p>The second constructor argument seeds <code>language</code>. It is an options object with two optional fields, read during construction and not kept:</p>
+<pre><code class="language-ts"><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-7">Options</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">language</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-4">storage</span><span class="hl-1">?: </span><span class="hl-7">string</span><span class="hl-1">;</span><br/><span class="hl-1">};</span>
+</code><button>Copy</button></pre>
+<ul>
+<li><code>language</code> specifies the initial language and takes precedence over storage.</li>
+<li><code>storage</code> specifies the <code>localStorage</code> key containing a persisted language.</li>
+</ul>
+<p>Storage access is optional:</p>
+<ul>
+<li>Without a configured storage key, the Localizer does not read <code>localStorage</code>.</li>
+<li>With an explicit language, storage is not read.</li>
+<li>Otherwise, the configured key is read once during construction.</li>
+<li>An absent or empty stored value falls back to the browser language.</li>
+<li>If storage access throws, the Localizer falls back to the browser language.</li>
+<li>The Localizer never writes to storage.</li>
+</ul>
+<p>A non-object options value, including a bare string, <code>null</code>, or an array, throws:</p>
+<pre><code class="language-text">Invalid options value: &lt;value&gt;
+</code><button>Copy</button></pre>
+<p>A defined <code>language</code> or <code>storage</code> field that is not a string throws:</p>
+<pre><code class="language-text">Invalid options value: &lt;field&gt; is invalid
+</code><button>Copy</button></pre>
 <p><strong><code>lexicon</code></strong> (<code>T</code>)</p>
 <ul>
 <li>Returns the resolved bundle for the current language.</li>

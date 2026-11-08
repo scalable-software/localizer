@@ -7,28 +7,12 @@
       "type": "Localizations<T>",
       "description": "A record of language codes mapped to localization bundles. Keys are language codes; values are localization bundles or undefined. Supplied once through the constructor and internally owned thereafter.",
       "readonly": true
-    },
-    "options": {
-      "type": "Options",
-      "description": "Constructor options, supplied once and internally owned. A bare string passed as the second constructor argument is treated as `{ language }`. `language` is an explicit initial language and wins over storage. `storage` names a localStorage key holding the persisted language; it is read once at construction and never written, and when absent storage is not consulted.",
-      "properties": {
-        "language": {
-          "type": "string",
-          "description": "Explicit initial language; normalized. Wins over the persisted and browser languages."
-        },
-        "storage": {
-          "type": "string",
-          "description": "localStorage key holding the persisted language, read once at construction and never written. No default — when absent, storage is not consulted. Absent, empty, or unreadable values fall through to the browser language."
-        }
-      },
-      "default": {},
-      "readonly": true
     }
   },
   "States": {
     "language": {
       "type": "Language",
-      "description": "The active language used to resolve the current lexicon. The constructor seeds it, in order, from `options.language`, then the language persisted at `localStorage[options.storage]` when `storage` is configured and holds a value, then `navigator.language`; the seed is normalized (`en-US` becomes `en`). Seeding does not emit an event. Later assignments through `language` or `setLanguage()` are stored verbatim. Falsy assignments are ignored; non-string assignments throw `Invalid language value: <value>`. Setting the same value does not emit an event.",
+      "description": "The active language used to resolve the current lexicon. The constructor seeds it, in order, from `options.language`, then the language persisted at `localStorage[options.storage]` when `storage` is configured and holds a non-empty value (storage that cannot be read counts as empty), then `navigator.language`; the seed is normalized (`en-US` becomes `en`). Constructor options are an object with optional string fields `language` and `storage`, read once at construction and not kept; any other options value, including a bare string, throws `Invalid options value: <value>`, and a present non-string field throws `Invalid options value: <field> is invalid`. Storage is never written. Seeding does not emit an event. Later assignments through `language` or `setLanguage()` are stored verbatim. Falsy assignments are ignored; non-string assignments throw `Invalid language value: <value>`. Setting the same value does not emit an event.",
       "values": ["<language code>"],
       "default": "<options.language, else the persisted language at options.storage, else navigator.language — normalized to base lowercase language code>",
       "readonly": false

@@ -78,6 +78,9 @@ export class Validate {
   public static configuration = (
     value: unknown,
   ): value is Configuration & { language: Language } => {
+    if (typeof value !== "object" || value === null || Array.isArray(value))
+      return false;
+
     const { type } = value as Record<string, unknown>;
     return type === Gesture.ON_APP_CONFIG_CHANGE;
   };

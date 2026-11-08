@@ -975,6 +975,27 @@ gesture(Gesture.MESSAGE, () => {
             expect(errors).toEqual([]);
           });
         });
+
+        when("the configuration channel broadcasts a coding-only configuration", () => {
+          beforeEach(async () => {
+            await announce({
+              type: Gesture.ON_APP_CONFIG_CHANGE,
+              coding: "ICD10",
+            });
+          });
+
+          then("localizer.language is unchanged", () => {
+            expect(localizer.language).toBe("en");
+          });
+
+          then("onlanguagechange is not emitted", () => {
+            expect(onlanguagechange).not.toHaveBeenCalled();
+          });
+
+          then("no error is thrown", () => {
+            expect(errors).toEqual([]);
+          });
+        });
       });
     });
   });

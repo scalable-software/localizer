@@ -104,9 +104,9 @@
   },
   "Gestures": {
     "onappconfigchange": {
-      "description": "An application configuration change, announced as a message on `Channels.configuration` whose `data.type` is `onappconfigchange`. The message may carry an optional `language` string.",
+      "description": "An application configuration change, announced as a `Configuration` message on `Channels.configuration` whose `data.type` is `onappconfigchange`. The channel carries more than language changes, so a message is never an error for the Localizer: data that is not an object, an array, another `type`, a message without `language` (for example coding only), or a `language` that is not a non-empty string is ignored silently — `language` is unchanged, `onlanguagechange` is not emitted, and nothing is thrown. Extra fields on an accepted message are ignored.",
       "triggers": {
-        "condition": "data.type is onappconfigchange and data.language is truthy — assigns `language` directly"
+        "condition": "data is a Configuration message with a non-empty string language (Validate.configuration) — assigns `language` directly"
       }
     },
     "message": {

@@ -414,7 +414,18 @@ The communication contract has three parts:
 - **Native channel event:** `"message"`, identified by `Gesture.MESSAGE`
 - **Payload type:** `Gesture.ON_APP_CONFIG_CHANGE`
 
-Expected message payload:
+The `Configuration` type describes the message as far as the Localizer reads it:
+
+```ts
+type Configuration = {
+  type: typeof Gesture.ON_APP_CONFIG_CHANGE;
+  language?: Language;
+};
+```
+
+Other fields may be present and are ignored. `Configuration` describes what the Localizer accepts, not the message senders should build: the full application message belongs in the application's contract.
+
+Example message:
 
 ```js
 {
@@ -423,14 +434,14 @@ Expected message payload:
 }
 ```
 
-The Localizer:
+The channel is shared. Other senders post on it, and configuration messages may carry other settings, such as a coding, without a language. A message on the channel is therefore never an error for the Localizer. The Localizer:
 
 1. Receives the payload through `message.data`.
-2. Ignores messages whose `type` does not match `Gesture.ON_APP_CONFIG_CHANGE`.
-3. Ignores messages whose `language` is falsy.
-4. Passes the language to its setter.
+2. Checks it with `Validate.configuration`, which never throws.
+3. Ignores, silently, any message that is not an object, is an array, has another `type`, has no `language`, or has a `language` that is not a non-empty string. Ignored messages leave `language` unchanged and emit no `onlanguagechange`.
+4. Passes the language of an accepted message to its setter, which ignores a language equal to the current one.
 
-Message producers should send an object with the expected fields and a string language value.
+Unrelated, coding-only and malformed messages are ignored without an error.
 
 #### 4.5.2 Example
 
@@ -480,6 +491,7 @@ localizer.dispose();
 - Messages sent before the Localizer creates its channel are not replayed when it initializes.
 - A disposed Localizer no longer receives channel messages.
 - Multiple initialized Localizers can receive the same configuration message.
+- A BroadcastChannel also reaches other tabs of the same site, so a language change in one tab updates the Localizers in every open tab.
 - The Localizer does not forward received messages back to the channel.
 
 #### 4.5.4 Persisting a Language Choice

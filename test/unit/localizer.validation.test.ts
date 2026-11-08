@@ -1,4 +1,4 @@
-import { Channel, Data, State, Validate } from "@scalable.software/localizer";
+import { Channel, Data, Gesture, State, Validate } from "@scalable.software/localizer";
 
 validation(State.LANGUAGE, () => {
   given("Validate imported", () => {
@@ -277,6 +277,33 @@ validation(Channel.CONFIGURATION, () => {
     and("`Validate` exists", () => {
       then("`Validate.configuration` static method exists", () => {
         expect(Validate.configuration).toBeDefined();
+      });
+
+      and("`value` is `{ type: Gesture.ON_APP_CONFIG_CHANGE, language: \"de\", coding: \"ICD10\" }`", () => {
+        let value: unknown;
+        beforeEach(() => {
+          value = { type: Gesture.ON_APP_CONFIG_CHANGE, language: "de", coding: "ICD10" };
+        });
+
+        when("`Validate.configuration(value)` is called", () => {
+          let error: unknown | undefined;
+          let result: any;
+          beforeEach(() => {
+            try {
+              result = Validate.configuration(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("result is `true`", () => {
+            expect(result).toBe(true);
+          });
+        });
       });
     });
   });

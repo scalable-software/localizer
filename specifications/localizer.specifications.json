@@ -84,7 +84,22 @@
   "Channels": {
     "configuration": {
       "name": "app.configuration",
-      "description": "The BroadcastChannel on which application configuration changes are announced. The channel is shared: other senders post on it and messages may carry fields the Localizer does not read. A BroadcastChannel reaches every same-origin context, so a change announced in one tab reaches the Localizers in every open tab. The Localizer opens its own instance in `initialize()` and closes it in `dispose()`; it never posts on the channel."
+      "description": "The BroadcastChannel on which application configuration changes are announced. The channel is shared: other senders post on it and messages may carry fields the Localizer does not read. A BroadcastChannel reaches every same-origin context, so a change announced in one tab reaches the Localizers in every open tab. The Localizer opens its own instance in `initialize()` and closes it in `dispose()`; it never posts on the channel.",
+      "message": {
+        "type": "Configuration",
+        "description": "A configuration message on the channel, as far as the Localizer reads it. Other fields may be present and are ignored. This describes what the Localizer accepts, not the full application message senders build; that belongs in the application's contract.",
+        "properties": {
+          "type": {
+            "type": "Gesture",
+            "description": "Identifies the message as an application configuration change.",
+            "values": ["onappconfigchange"]
+          },
+          "language": {
+            "type": "Language",
+            "description": "Optional new language. Only a non-empty string is used."
+          }
+        }
+      }
     }
   },
   "Gestures": {

@@ -55,7 +55,7 @@ export class Localizer<T extends object> extends EventTarget {
   /**
    * Create a localizer with the available language bundles and initial language
    * The constructor normalizes the initial language to the base lowercase code
-   * @category Configuration
+   * @category Lifecycle
    */
   constructor(localizations: Localizations<T>, options: string | Options = {}) {
     super();
@@ -186,7 +186,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Register listeners for application-level configuration changes
-   * @category Configuration
+   * @category Lifecycle
    * @hidden
    */
   protected _addEventListeners = () => {
@@ -196,7 +196,7 @@ export class Localizer<T extends object> extends EventTarget {
 
   /**
    * Remove listeners for application-level configuration changes
-   * @category Configuration
+   * @category Lifecycle
    * @hidden
    */
   protected _removeEventListeners = () => {

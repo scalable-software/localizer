@@ -884,19 +884,6 @@ gesture(Gesture.MESSAGE, () => {
         });
       });
 
-      when("the configuration channel broadcasts a different gesture", () => {
-        beforeEach(async () => {
-          await announce({
-            type: "unrelated-gesture",
-            language: "de",
-          });
-        });
-
-        then("localizer.language is unchanged", () => {
-          expect(localizer.language).toBe("en");
-        });
-      });
-
       and("onlanguagechange and window errors are observed", () => {
         let onlanguagechange: jasmine.Spy;
         let errors: unknown[];
@@ -953,6 +940,27 @@ gesture(Gesture.MESSAGE, () => {
         when("the configuration channel broadcasts `[\"de\"]`", () => {
           beforeEach(async () => {
             await announce(["de"]);
+          });
+
+          then("localizer.language is unchanged", () => {
+            expect(localizer.language).toBe("en");
+          });
+
+          then("onlanguagechange is not emitted", () => {
+            expect(onlanguagechange).not.toHaveBeenCalled();
+          });
+
+          then("no error is thrown", () => {
+            expect(errors).toEqual([]);
+          });
+        });
+
+        when("the configuration channel broadcasts an unrelated `type` with language de", () => {
+          beforeEach(async () => {
+            await announce({
+              type: "unrelated-gesture",
+              language: "de",
+            });
           });
 
           then("localizer.language is unchanged", () => {

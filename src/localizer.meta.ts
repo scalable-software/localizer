@@ -84,6 +84,20 @@ export const Gesture = {
 export type Gesture = (typeof Gesture)[keyof typeof Gesture];
 
 /**
+ * Channel names used for inter-component communication
+ * @category Metadata: Channel
+ * @enum
+ */
+export const Channel = {
+} as const;
+
+/**
+ * Channel names used for inter-component communication
+ * @category Metadata: Channel
+ */
+export type Channel = (typeof Channel)[keyof typeof Channel];
+
+/**
  * Localization bundles keyed by language code
  *
  * Each key represents a language identifier such as `en` or `de`.

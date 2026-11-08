@@ -81,7 +81,7 @@ export class Validate {
     if (typeof value !== "object" || value === null || Array.isArray(value))
       return false;
 
-    const { type } = value as Record<string, unknown>;
-    return type === Gesture.ON_APP_CONFIG_CHANGE;
+    const { type, language } = value as Record<string, unknown>;
+    return type === Gesture.ON_APP_CONFIG_CHANGE && typeof language === "string";
   };
 }

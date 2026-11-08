@@ -2,7 +2,12 @@
  * @module Localizer
  */
 
-import type { Language, Localizations, Options } from "./localizer.meta.js";
+import type {
+  Configuration,
+  Language,
+  Localizations,
+  Options,
+} from "./localizer.meta.js";
 
 /**
  * Runtime enforcement of the value domains declared in `localizer.meta.ts`
@@ -61,4 +66,15 @@ export class Validate {
 
     return value as Options;
   };
+
+  /**
+   * Decides whether a message received on `Channel.CONFIGURATION` is a
+   * configuration message with a usable language.
+   * Never throws: the channel is shared, so any other message is not an error.
+   * The rules for the language value itself stay in the `language` setter.
+   * @category Validation
+   */
+  public static configuration = (
+    value: unknown,
+  ): value is Configuration & { language: Language } => false;
 }

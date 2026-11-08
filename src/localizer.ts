@@ -4,6 +4,9 @@ import type { Localizations, Options } from "./localizer.meta.js";
 // Validation
 import { Validate } from "./localizer.validation.js";
 
+// Storage
+import { Storage } from "./localizer.storage.js";
+
 /**
  * Localizer addon for components
  * @category Utilities
@@ -39,11 +42,11 @@ export class Localizer<T extends object> extends EventTarget {
   private _localizations: Localizations<T> = {};
 
   /**
-   * Constructor options: explicit initial language and persisted-language storage key
+   * Read-only access to the persisted language at `options.storage`
    * @category Data
    * @hidden
    */
-  private _options: Options = {};
+  private _storage: Storage;
 
   /**
    * BroadcastChannel for inter-component communication
@@ -57,16 +60,15 @@ export class Localizer<T extends object> extends EventTarget {
    * The constructor normalizes the initial language to the base lowercase code
    * @category Lifecycle
    */
-  constructor(localizations: Localizations<T>, options: string | Options = {}) {
+  constructor(localizations: Localizations<T>, options: Options = {}) {
     super();
 
     this._localizations = Validate.localizations(localizations);
 
-    const normalized = this._normalizeOptions(options);
-    this._options = Validate.options(normalized);
+    const { language, storage } = Validate.options(options);
 
-    const language = this._normalizeLanguage(this._options);
-    this._language = Validate.language(language);
+    this._storage = new Storage(storage);
+    this._language = this._initialLanguage(language);
   }
 
   /**
@@ -98,14 +100,6 @@ export class Localizer<T extends object> extends EventTarget {
    */
   public get localizations(): Localizations<T> {
     return this._localizations;
-  }
-
-  /**
-   * Get the constructor options the localizer was created with
-   * @category Data
-   */
-  public get options(): Options {
-    return this._options;
   }
 
   /**
@@ -158,22 +152,27 @@ export class Localizer<T extends object> extends EventTarget {
   }
 
   /**
-   * Register global listeners required to keep the localizer in sync
+   * Open the configuration channel and register the listeners required to
+   * keep the localizer in sync
    * @category Operations
    */
   public initialize = () => {
     if (this._initialized) return;
+    this._channel = new BroadcastChannel(Channel.CONFIGURATION);
     this._addEventListeners();
     this._initialized = true;
   };
 
   /**
-   * Remove global listeners previously registered by `initialize()`
+   * Remove the listeners registered by `initialize()` and close the
+   * configuration channel
    * @category Operations
    */
   public dispose = () => {
     if (!this._initialized) return;
     this._removeEventListeners();
+    this._channel?.close();
+    this._channel = null;
     this._initialized = false;
   };
 
@@ -189,21 +188,16 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Lifecycle
    * @hidden
    */
-  protected _addEventListeners = () => {
-    this._channel = new BroadcastChannel(Channel.CONFIGURATION);
-    this._channel.addEventListener(Gesture.MESSAGE, this._handleMessage);
-  };
+  protected _addEventListeners = () =>
+    this._channel?.addEventListener(Gesture.MESSAGE, this._handleMessage);
 
   /**
    * Remove listeners for application-level configuration changes
    * @category Lifecycle
    * @hidden
    */
-  protected _removeEventListeners = () => {
+  protected _removeEventListeners = () =>
     this._channel?.removeEventListener(Gesture.MESSAGE, this._handleMessage);
-    this._channel?.close();
-    this._channel = null;
-  };
 
   /**
    * Dispatches a CustomEvent from the component with its detail
@@ -225,45 +219,36 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Gesture
    * @hidden
    */
-  private _handleMessage = (message: MessageEvent<unknown>): void => {
-    if (!Validate.configuration(message.data)) return;
-    this.language = message.data.language;
+  private _handleMessage = ({ data }: MessageEvent<unknown>): void => {
+    const valid = Validate.configuration(data);
+    if (!valid) return;
+
+    this.language = data.language;
   };
 
   /**
-   * Normalize the second constructor argument to an options object
-   * A bare string is the positional initial language
+   * The language the localizer starts with: resolved, then normalized
    * @category Utility
    * @hidden
    */
-  private _normalizeOptions = (options: string | Options): Options =>
-    typeof options === "string" ? { language: options } : options;
+  private _initialLanguage = (language?: string): string =>
+    this._normalizeLanguage(this._resolveLanguage(language));
 
   /**
-   * Resolve the initial language and normalize it to the base lowercase code
+   * Resolve the initial language
    * Resolution order: the explicit option, else the persisted language at
    * the configured storage key, else the browser language
    * @category Utility
    * @hidden
    */
-  private _normalizeLanguage = ({ language, storage }: Options): string =>
-    (language ?? this._persisted(storage) ?? navigator.language)
-      .split("-")[0]
-      .toLowerCase();
+  private _resolveLanguage = (language?: string): string =>
+    language ?? this._storage.language ?? navigator.language;
 
   /**
-   * Read the persisted language from localStorage, if a key is configured
-   * Returns null when no key is configured, the value is absent or empty, or
-   * `localStorage` access throws (cookies / site data blocked, sandboxed frame).
+   * Normalize a language to its base lowercase code (`en-US` becomes `en`)
    * @category Utility
    * @hidden
    */
-  private _persisted = (key?: string): string | null => {
-    if (!key) return null;
-    try {
-      return localStorage.getItem(key) || null;
-    } catch {
-      return null;
-    }
-  };
+  private _normalizeLanguage = (language: string): string =>
+    language.split("-")[0].toLowerCase();
 }

@@ -76,55 +76,6 @@ data(Data.LOCALIZATIONS, () => {
   });
 });
 
-data(Data.OPTIONS, () => {
-  given("Localizer instantiated", () => {
-    let localizer: Localizer<object>;
-    beforeEach(() => {
-      localizer = new Localizer({});
-    });
-
-    then("`localizer.options` getter exists", () => {
-      expect(localizer.options).toBeDefined();
-    });
-
-    and("`localizer.options` getter exists", () => {
-      then("`localizer.options` is `{}`", () => {
-        expect(localizer.options).toEqual({});
-      });
-    });
-  });
-
-  given('Localizer instantiated with `"de"` as options', () => {
-    let localizer: Localizer<object>;
-    beforeEach(() => {
-      localizer = new Localizer({}, "de");
-    });
-
-    then('`localizer.options` is `{ language: "de" }`', () => {
-      expect(localizer.options).toEqual({ language: "de" });
-    });
-  });
-
-  given("Localizer instantiated with `null` as options", () => {
-    let error: Error;
-    beforeEach(() => {
-      try {
-        new Localizer({}, null as unknown as Options);
-      } catch (err) {
-        error = err as Error;
-      }
-    });
-
-    then("an error is thrown", () => {
-      expect(error).toBeDefined();
-    });
-
-    then("error message is `Invalid options value: null`", () => {
-      expect(error.message).toBe("Invalid options value: null");
-    });
-  });
-});
-
 state(State.LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
@@ -196,7 +147,7 @@ state(State.LANGUAGE, () => {
   given("Localizer instantiated with language", () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer({}, "de");
+      localizer = new Localizer({}, { language: "de" });
     });
 
     then("localizer.language is set to language", () => {
@@ -207,7 +158,7 @@ state(State.LANGUAGE, () => {
   given('Localizer instantiated with `"en-US"` as language', () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer({}, "en-US");
+      localizer = new Localizer({}, { language: "en-US" });
     });
 
     then('`localizer.language` is normalized to `"en"`', () => {
@@ -454,6 +405,44 @@ state(State.LANGUAGE, () => {
       expect(error.message).toBe("Invalid options value: 42");
     });
   });
+
+  given('Localizer instantiated with `"de"` as options', () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer({}, "de" as unknown as Options);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid options value: de`", () => {
+      expect(error.message).toBe("Invalid options value: de");
+    });
+  });
+
+  given("Localizer instantiated with `null` as options", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer({}, null as unknown as Options);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid options value: null`", () => {
+      expect(error.message).toBe("Invalid options value: null");
+    });
+  });
 });
 
 state(State.LEXICON, () => {
@@ -544,7 +533,7 @@ state(State.LEXICON, () => {
       and('localizer instantiated with localizations and `"de"`', () => {
         let localizer: Localizer<object>;
         beforeEach(() => {
-          localizer = new Localizer(localizations, "de");
+          localizer = new Localizer(localizations, { language: "de" });
         });
 
         then(
@@ -584,7 +573,7 @@ operation(Operation.INITIALIZE, () => {
     let addEventListener: jasmine.Spy;
 
     beforeEach(() => {
-      localizer = new Localizer({}, "en");
+      localizer = new Localizer({}, { language: "en" });
 
       addEventListener = spyOn(
         BroadcastChannel.prototype,
@@ -642,7 +631,7 @@ operation(Operation.DISPOSE, () => {
     let close: jasmine.Spy;
 
     beforeEach(() => {
-      localizer = new Localizer({}, "en");
+      localizer = new Localizer({}, { language: "en" });
 
       removeEventListener = spyOn(
         BroadcastChannel.prototype,

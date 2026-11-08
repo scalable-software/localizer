@@ -164,7 +164,7 @@ validation(Data.LOCALIZATIONS, () => {
   });
 });
 
-validation(Data.OPTIONS, () => {
+validation(State.LANGUAGE, () => {
   given("Validate imported", () => {
     then("`Validate` exists", () => {
       expect(Validate).toBeDefined();

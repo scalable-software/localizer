@@ -89,9 +89,15 @@
   },
   "Gestures": {
     "onappconfigchange": {
-      "description": "A window-level custom event used to synchronize the Localizer with application configuration changes. Observed only after `initialize()` has been called and until `dispose()`. The event `detail` may carry an optional `language` string.",
+      "description": "An application configuration change, announced as a message on `Channels.configuration` whose `data.type` is `onappconfigchange`. The message may carry an optional `language` string.",
       "triggers": {
-        "condition": "on window, after initialize(), when detail.language is present — assigns `language` directly"
+        "condition": "data.type is onappconfigchange and data.language is truthy — assigns `language` directly"
+      }
+    },
+    "message": {
+      "description": "The BroadcastChannel `message` event on `Channels.configuration`. Observed only after `initialize()` has been called and until `dispose()`.",
+      "triggers": {
+        "condition": "on Channels.configuration, after initialize() — handled as onappconfigchange"
       }
     }
   }

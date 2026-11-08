@@ -123,3 +123,13 @@ export type Options = {
   language?: string;
   storage?: string;
 };
+
+/**
+ * Configuration message on `Channel.CONFIGURATION`, as far as the Localizer reads it
+ * Other fields may be present and are ignored
+ * @category Metadata: Channel
+ */
+export type Configuration = {
+  type: typeof Gesture.ON_APP_CONFIG_CHANGE;
+  language?: Language;
+};

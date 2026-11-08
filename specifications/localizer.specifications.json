@@ -43,12 +43,12 @@
   },
   "Operations": {
     "initialize": {
-      "description": "Registers the Localizer to listen for global application configuration changes on `window`. Idempotent: calling it while already initialized has no effect.",
+      "description": "Opens a BroadcastChannel on `Channels.configuration` and listens for its `message` events. Idempotent: calling it while already initialized opens no second channel and registers no second listener.",
       "parameters": [],
       "returns": "void"
     },
     "dispose": {
-      "description": "Removes the global application configuration listener previously registered by `initialize()`. Idempotent: calling it while not initialized has no effect.",
+      "description": "Removes the `message` listener registered by `initialize()` and closes the Localizer's BroadcastChannel. Listeners on the Localizer itself, such as `onlanguagechange`, are kept. Idempotent: calling it while not initialized has no effect.",
       "parameters": [],
       "returns": "void"
     },

@@ -5,6 +5,6 @@ const localizations = {
 	de: { greeting: "Hallo" },
 };
 
-const localizer = new Localizer(localizations, "de");
+const localizer = new Localizer(localizations, { language: "de" });
 
 console.log(localizer.lexicon.greeting);

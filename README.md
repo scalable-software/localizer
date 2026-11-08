@@ -69,7 +69,7 @@ The Localizer extends **EventTarget**. It keeps language resolution explicit whi
 3. **Instantiate** the Localizer with an initial language:
 
    ```js
-   const localizer = new Localizer(localizations, "de");
+   const localizer = new Localizer(localizations, { language: "de" });
    ```
 
    Alternatively, seed it from a persisted choice, falling back to the browser language:
@@ -141,6 +141,7 @@ For more details, consult the sections below or generate the API documentation w
 
 - **Metadata** (`localizer.meta.ts`): Defines public constants and types for channels, data, state, operations, events, gestures, and localization bundles.
 - **Validation** (`localizer.validation.ts`): Validates language values, the localization container, and constructor options.
+- **Storage** (`localizer.storage.ts`): Internal read-only view of the persisted language in `localStorage`. It is not exported.
 - **Class** (`localizer.ts`): Implements language normalization, lexicon resolution, local event dispatch, and BroadcastChannel integration.
 - **Entry Point** (`index.ts`): Re-exports the Localizer and its public metadata surface.
 
@@ -156,7 +157,7 @@ Responsibilities are divided between:
 #### Construction
 
 1. Validates and stores the localization bundles.
-2. Normalizes and validates the options. A bare string becomes `{ language }`.
+2. Validates the options. They are read during construction and not kept.
 3. Resolves the initial language from the explicit option, configured storage key, or browser language.
 4. Normalizes the initial language to its base lowercase code.
 
@@ -211,43 +212,6 @@ Individual bundle contents are not validated.
 
 The `localizations` getter exposes the supplied object. The property has no setter, but the returned object is not frozen.
 
-**`options`**
-
-The constructor accepts an options object with two optional fields:
-
-```ts
-type Options = {
-  language?: string;
-  storage?: string;
-};
-```
-
-- `language` specifies the initial language and takes precedence over storage.
-- `storage` specifies the `localStorage` key containing a persisted language.
-
-Storage access is optional:
-
-- Without a configured storage key, the Localizer does not read `localStorage`.
-- With an explicit language, storage is not read.
-- Otherwise, the configured key is read once during construction.
-- An absent or empty stored value falls back to the browser language.
-- If storage access throws, the Localizer falls back to the browser language.
-- The Localizer never writes to storage.
-
-A non-object, `null`, or array options value throws:
-
-```text
-Invalid options value: <value>
-```
-
-A defined `language` or `storage` field that is not a string throws:
-
-```text
-Invalid options value: <field> is invalid
-```
-
-The `options` getter exposes the options object. The property has no setter, but the returned object is not frozen. Changing that object does not rerun initialization or language resolution.
-
 #### 4.1.2 Resolution Order
 
 When `lexicon` is read, the Localizer resolves bundles in this order:
@@ -281,6 +245,41 @@ The Localizer exposes the active language and its resolved lexicon.
 - Falsy assignments are ignored.
 - Truthy non-string assignments throw `Invalid language value: <value>`.
 - Assigning the current language again does not emit an event.
+
+**Constructor options**
+
+The second constructor argument seeds `language`. It is an options object with two optional fields, read during construction and not kept:
+
+```ts
+type Options = {
+  language?: string;
+  storage?: string;
+};
+```
+
+- `language` specifies the initial language and takes precedence over storage.
+- `storage` specifies the `localStorage` key containing a persisted language.
+
+Storage access is optional:
+
+- Without a configured storage key, the Localizer does not read `localStorage`.
+- With an explicit language, storage is not read.
+- Otherwise, the configured key is read once during construction.
+- An absent or empty stored value falls back to the browser language.
+- If storage access throws, the Localizer falls back to the browser language.
+- The Localizer never writes to storage.
+
+A non-object options value, including a bare string, `null`, or an array, throws:
+
+```text
+Invalid options value: <value>
+```
+
+A defined `language` or `storage` field that is not a string throws:
+
+```text
+Invalid options value: <field> is invalid
+```
 
 **`lexicon`** (`T`)
 

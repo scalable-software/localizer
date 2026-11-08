@@ -931,6 +931,24 @@ gesture(Gesture.MESSAGE, () => {
             expect(errors).toEqual([]);
           });
         });
+
+        when("the configuration channel broadcasts `\"de\"`", () => {
+          beforeEach(async () => {
+            await announce("de");
+          });
+
+          then("localizer.language is unchanged", () => {
+            expect(localizer.language).toBe("en");
+          });
+
+          then("onlanguagechange is not emitted", () => {
+            expect(onlanguagechange).not.toHaveBeenCalled();
+          });
+
+          then("no error is thrown", () => {
+            expect(errors).toEqual([]);
+          });
+        });
       });
     });
   });

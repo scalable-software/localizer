@@ -1,11 +1,5 @@
-import { Handler } from "@scalable.software/component";
-
-import {
-  Event,
-  Gesture,
-  type Localizations,
-  type Options,
-} from "./localizer.meta.js";
+import { Channel, Event, Gesture } from "./localizer.meta.js";
+import type { Localizations, Options } from "./localizer.meta.js";
 
 // Validation
 import { Validate } from "./localizer.validation.js";
@@ -35,7 +29,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Events
    * @hidden
    */
-  private _onlanguagechange: Handler | null = null;
+  private _onlanguagechange: EventListener | null = null;
 
   /**
    * Available localization bundles keyed by language code
@@ -52,14 +46,18 @@ export class Localizer<T extends object> extends EventTarget {
   private _options: Options = {};
 
   /**
+   * BroadcastChannel for inter-component communication
+   * @category Channel
+   * @hidden
+   */
+  private _channel: BroadcastChannel | null = null;
+
+  /**
    * Create a localizer with the available language bundles and initial language
    * The constructor normalizes the initial language to the base lowercase code
    * @category Configuration
    */
-  constructor(
-    localizations: Localizations<T>,
-    options: string | Options = {},
-  ) {
+  constructor(localizations: Localizations<T>, options: string | Options = {}) {
     super();
 
     this._localizations = Validate.localizations(localizations);
@@ -136,11 +134,9 @@ export class Localizer<T extends object> extends EventTarget {
     // Mutate
     this._language = language;
 
-    this.dispatchEvent(
-      new CustomEvent(Event.ON_LANGUAGE_CHANGE, {
-        detail: { language },
-      }),
-    );
+    // Dispatch
+    const detail = { language };
+    this._dispatch(Event.ON_LANGUAGE_CHANGE, detail);
   }
 
   /**
@@ -148,7 +144,7 @@ export class Localizer<T extends object> extends EventTarget {
    * @event
    * @category Events
    */
-  public set onlanguagechange(handler: Handler | null) {
+  public set onlanguagechange(handler: EventListener | null) {
     this._onlanguagechange &&
       this.removeEventListener(
         Event.ON_LANGUAGE_CHANGE,
@@ -193,37 +189,48 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Configuration
    * @hidden
    */
-  protected _addEventListeners = () =>
-    window.addEventListener(
-      Gesture.ON_APP_CONFIG_CHANGE,
-      this._handleAppConfigChange as EventListener,
-    );
+  protected _addEventListeners = () => {
+    this._channel = new BroadcastChannel(Channel.CONFIGURATION);
+    this._channel.addEventListener(Gesture.MESSAGE, this._handleMessage);
+  };
 
   /**
    * Remove listeners for application-level configuration changes
    * @category Configuration
    * @hidden
    */
-  protected _removeEventListeners = () =>
-    window.removeEventListener(
-      Gesture.ON_APP_CONFIG_CHANGE,
-      this._handleAppConfigChange as EventListener,
+  protected _removeEventListeners = () => {
+    this._channel?.removeEventListener(Gesture.MESSAGE, this._handleMessage);
+    this._channel?.close();
+    this._channel = null;
+  };
+
+  /**
+   * Dispatches a CustomEvent from the component with its detail
+   * @param event - The name of the event
+   * @param detail - The event's detail; without it, `event.detail` is `null`
+   * @returns `false` when the event was cancelled; otherwise `true`
+   * @hidden
+   */
+  private _dispatch = (event: string, detail?: unknown): boolean =>
+    this.dispatchEvent(
+      new CustomEvent(event, detail === undefined ? undefined : { detail }),
     );
 
   /**
-   * Apply language updates received from app configuration change events
-   * The incoming language is forwarded to the `language` setter as provided
+   * Set the language on `Gesture.ON_APP_CONFIG_CHANGE` messages received from the BroadcastChannel
    * @category Gesture
    * @hidden
    */
-  private _handleAppConfigChange = (
-    event: CustomEvent<{ language?: string }>,
+  private _handleMessage = (
+    message: MessageEvent<{ type: string; language?: string }>,
   ): void => {
-    const { detail } = event;
+    const { type, language } = message.data;
 
-    if (!detail?.language) return;
+    if (type !== Gesture.ON_APP_CONFIG_CHANGE) return;
+    if (!language) return;
 
-    this.language = detail.language;
+    this.language = language as string;
   };
 
   /**

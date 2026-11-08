@@ -4,13 +4,11 @@ export {
   Operation,
   Event,
   Gesture,
-  type Language,
-  type Localizations,
-  type Options,
+  Channel
 } from "./localizer.meta.js";
 
-export { Validate } from "./localizer.validation.js";
+export type { Language, Localizations, Options } from "./localizer.meta.js";
 
-export { type Handler } from "@scalable.software/component";
+export { Validate } from "./localizer.validation.js";
 
 export { Localizer } from "./localizer.js";

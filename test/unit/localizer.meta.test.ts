@@ -4,6 +4,7 @@ import {
   Operation,
   Event,
   Gesture,
+  Channel,
 } from "@scalable.software/localizer";
 
 // Data
@@ -121,6 +122,27 @@ metadata(Metadata.GESTURE, () => {
       when("Gesture is an object", () => {
         then("`Gesture.ON_APP_CONFIG_CHANGE` exists", () => {
           expect(Gesture.ON_APP_CONFIG_CHANGE).toBeDefined();
+        });
+      });
+    });
+  });
+});
+
+// Channel
+metadata(Metadata.CHANNEL, () => {
+  and("Channel imported", () => {
+    then("Channel is defined", () => {
+      expect(Channel).toBeDefined();
+    });
+
+    and("Channel is defined", () => {
+      then("Channel is an object", () => {
+        expect(typeof Channel).toBe("object");
+      });
+
+      when("Channel is an object", () => {
+        then("`Channel.CONFIGURATION` exists", () => {
+          expect(Channel.CONFIGURATION).toBeDefined();
         });
       });
     });

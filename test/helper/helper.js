@@ -111,6 +111,7 @@ globalThis.Metadata = {
   OPERATION: "operation",
   EVENT: "event",
   GESTURE: "gesture",
+  CHANNEL: "channel",
 };
 
 // Helper functions for testing

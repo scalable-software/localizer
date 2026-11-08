@@ -75,6 +75,7 @@ export type Event = (typeof Event)[keyof typeof Event];
  */
 export const Gesture = {
   ON_APP_CONFIG_CHANGE: "onappconfigchange",
+  MESSAGE: "message",
 } as const;
 
 /**
@@ -82,6 +83,21 @@ export const Gesture = {
  * @category Metadata: Gesture
  */
 export type Gesture = (typeof Gesture)[keyof typeof Gesture];
+
+/**
+ * Channel names used for inter-component communication
+ * @category Metadata: Channel
+ * @enum
+ */
+export const Channel = {
+  CONFIGURATION: "app.configuration",
+} as const;
+
+/**
+ * Channel names used for inter-component communication
+ * @category Metadata: Channel
+ */
+export type Channel = (typeof Channel)[keyof typeof Channel];
 
 /**
  * Localization bundles keyed by language code

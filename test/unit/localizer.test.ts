@@ -196,7 +196,7 @@ state(State.LANGUAGE, () => {
   given("Localizer instantiated with language", () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer({}, "de");
+      localizer = new Localizer({}, { language: "de" });
     });
 
     then("localizer.language is set to language", () => {
@@ -207,7 +207,7 @@ state(State.LANGUAGE, () => {
   given('Localizer instantiated with `"en-US"` as language', () => {
     let localizer: Localizer<object>;
     beforeEach(() => {
-      localizer = new Localizer({}, "en-US");
+      localizer = new Localizer({}, { language: "en-US" });
     });
 
     then('`localizer.language` is normalized to `"en"`', () => {
@@ -544,7 +544,7 @@ state(State.LEXICON, () => {
       and('localizer instantiated with localizations and `"de"`', () => {
         let localizer: Localizer<object>;
         beforeEach(() => {
-          localizer = new Localizer(localizations, "de");
+          localizer = new Localizer(localizations, { language: "de" });
         });
 
         then(
@@ -584,7 +584,7 @@ operation(Operation.INITIALIZE, () => {
     let addEventListener: jasmine.Spy;
 
     beforeEach(() => {
-      localizer = new Localizer({}, "en");
+      localizer = new Localizer({}, { language: "en" });
 
       addEventListener = spyOn(
         BroadcastChannel.prototype,
@@ -642,7 +642,7 @@ operation(Operation.DISPOSE, () => {
     let close: jasmine.Spy;
 
     beforeEach(() => {
-      localizer = new Localizer({}, "en");
+      localizer = new Localizer({}, { language: "en" });
 
       removeEventListener = spyOn(
         BroadcastChannel.prototype,

@@ -4,6 +4,9 @@ import type { Localizations, Options } from "./localizer.meta.js";
 // Validation
 import { Validate } from "./localizer.validation.js";
 
+// Storage
+import { Storage } from "./localizer.storage.js";
+
 /**
  * Localizer addon for components
  * @category Utilities
@@ -39,6 +42,13 @@ export class Localizer<T extends object> extends EventTarget {
   private _localizations: Localizations<T> = {};
 
   /**
+   * Read-only access to the persisted language at `options.storage`
+   * @category Data
+   * @hidden
+   */
+  private _storage: Storage;
+
+  /**
    * BroadcastChannel for inter-component communication
    * @category Channel
    * @hidden
@@ -54,8 +64,11 @@ export class Localizer<T extends object> extends EventTarget {
     super();
 
     this._localizations = Validate.localizations(localizations);
-    const language = this._normalizeLanguage(Validate.options(options));
-    this._language = Validate.language(language);
+
+    const { language, storage } = Validate.options(options);
+
+    this._storage = new Storage(storage);
+    this._language = this._initialLanguage(language);
   }
 
   /**
@@ -212,30 +225,28 @@ export class Localizer<T extends object> extends EventTarget {
   };
 
   /**
-   * Resolve the initial language and normalize it to the base lowercase code
+   * The language the localizer starts with: resolved, then normalized
+   * @category Utility
+   * @hidden
+   */
+  private _initialLanguage = (language?: string): string =>
+    this._normalizeLanguage(this._resolveLanguage(language));
+
+  /**
+   * Resolve the initial language
    * Resolution order: the explicit option, else the persisted language at
    * the configured storage key, else the browser language
    * @category Utility
    * @hidden
    */
-  private _normalizeLanguage = ({ language, storage }: Options): string =>
-    (language ?? this._persisted(storage) ?? navigator.language)
-      .split("-")[0]
-      .toLowerCase();
+  private _resolveLanguage = (language?: string): string =>
+    language ?? this._storage.language ?? navigator.language;
 
   /**
-   * Read the persisted language from localStorage, if a key is configured
-   * Returns null when no key is configured, the value is absent or empty, or
-   * `localStorage` access throws (cookies / site data blocked, sandboxed frame).
+   * Normalize a language to its base lowercase code (`en-US` becomes `en`)
    * @category Utility
    * @hidden
    */
-  private _persisted = (key?: string): string | null => {
-    if (!key) return null;
-    try {
-      return localStorage.getItem(key) || null;
-    } catch {
-      return null;
-    }
-  };
+  private _normalizeLanguage = (language: string): string =>
+    language.split("-")[0].toLowerCase();
 }

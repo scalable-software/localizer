@@ -57,13 +57,11 @@ export class Localizer<T extends object> extends EventTarget {
    * The constructor normalizes the initial language to the base lowercase code
    * @category Lifecycle
    */
-  constructor(localizations: Localizations<T>, options: string | Options = {}) {
+  constructor(localizations: Localizations<T>, options: Options = {}) {
     super();
 
     this._localizations = Validate.localizations(localizations);
-
-    const normalized = this._normalizeOptions(options);
-    this._options = Validate.options(normalized);
+    this._options = Validate.options(options);
 
     const language = this._normalizeLanguage(this._options);
     this._language = Validate.language(language);
@@ -229,15 +227,6 @@ export class Localizer<T extends object> extends EventTarget {
     if (!Validate.configuration(message.data)) return;
     this.language = message.data.language;
   };
-
-  /**
-   * Normalize the second constructor argument to an options object
-   * A bare string is the positional initial language
-   * @category Utility
-   * @hidden
-   */
-  private _normalizeOptions = (options: string | Options): Options =>
-    typeof options === "string" ? { language: options } : options;
 
   /**
    * Resolve the initial language and normalize it to the base lowercase code

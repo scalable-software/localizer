@@ -218,19 +218,16 @@ export class Localizer<T extends object> extends EventTarget {
     );
 
   /**
-   * Set the language on `Gesture.ON_APP_CONFIG_CHANGE` messages received from the BroadcastChannel
+   * Set the language from configuration messages received on `Channel.CONFIGURATION`
+   * The channel is shared and makes no promise about what it carries: any
+   * message that is not a configuration message with a usable language is
+   * ignored silently, never thrown on
    * @category Gesture
    * @hidden
    */
-  private _handleMessage = (
-    message: MessageEvent<{ type: string; language?: string }>,
-  ): void => {
-    const { type, language } = message.data;
-
-    if (type !== Gesture.ON_APP_CONFIG_CHANGE) return;
-    if (!language) return;
-
-    this.language = language as string;
+  private _handleMessage = (message: MessageEvent<unknown>): void => {
+    if (!Validate.configuration(message.data)) return;
+    this.language = message.data.language;
   };
 
   /**

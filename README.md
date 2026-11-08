@@ -2,15 +2,15 @@
 
 # Localizer Documentation
 
-Below is a comprehensive document detailing the Localizer utility's architecture, usage, and development workflow. It prioritizes a quick start so you can see localization resolution immediately, then explains the Localizer's data model, state, operations, events, and app-level synchronization behavior.
+This document describes the Localizer utility's architecture, usage, and development workflow. It starts with a quick example, then explains the data model, state, operations, events, and synchronization through BroadcastChannel.
 
 ---
 
 ## 1. Introduction
 
-The **Localizer** utility provides a small, predictable localization layer for web components and related UI code. It stores language bundles, resolves the active lexicon from the current language, listens for global application language changes, and emits an event when the language changes.
+The **Localizer** utility provides a small, predictable localization layer for web components and related UI code. It stores language bundles, resolves the active lexicon from the current language, receives application language changes through a BroadcastChannel, and emits an event when its language changes.
 
-Unlike a custom element, the Localizer is an **EventTarget-based utility** rather than a DOM component. Its job is to keep language resolution logic simple and explicit while integrating cleanly with the rest of the Scalable.Software component ecosystem.
+The Localizer extends **EventTarget**. It keeps language resolution explicit while integrating with the rest of the Scalable.Software component ecosystem.
 
 ### 1.1 Installation & Setup
 
@@ -27,13 +27,13 @@ Unlike a custom element, the Localizer is an **EventTarget-based utility** rathe
    npm install
    ```
 
-3. **Run tests (optional)**
+3. **Run tests**
 
    ```bash
    npm test
    ```
 
-   - Ensures the Localizer's state resolution, events, and gesture integration behave as expected.
+   Tests cover language resolution, events, lifecycle operations, and BroadcastChannel integration.
 
 4. **Start the demo**
 
@@ -41,18 +41,20 @@ Unlike a custom element, the Localizer is an **EventTarget-based utility** rathe
    npm run serve
    ```
 
-   - Opens the demo page and runs a minimal example in the browser console.
+   Use the demo page to explore the Localizer in the browser.
 
 ---
 
 ## 2. Quick Start Usage Walkthrough
 
-This walkthrough demonstrates the simplest usage of the Localizer before diving into its internal design.
-
-1. **Import** the Localizer:
+1. **Import** the Localizer and its communication metadata:
 
    ```js
-   import { Localizer } from "@scalable.software/localizer";
+   import {
+     Localizer,
+     Channel,
+     Gesture,
+   } from "@scalable.software/localizer";
    ```
 
 2. **Define** localization bundles:
@@ -70,13 +72,15 @@ This walkthrough demonstrates the simplest usage of the Localizer before diving 
    const localizer = new Localizer(localizations, "de");
    ```
 
-   Or let it seed from the user's persisted choice, falling back to the browser language:
+   Alternatively, seed it from a persisted choice, falling back to the browser language:
 
    ```js
-   const localizer = new Localizer(localizations, { storage: "app.language" });
+   const localizer = new Localizer(localizations, {
+     storage: "app.language",
+   });
    ```
 
-   - `storage` names a `localStorage` key that your application writes when the user picks a language. The Localizer only ever reads it — once, at construction.
+   `storage` names a `localStorage` key maintained by your application. The Localizer reads that key during construction when no explicit initial language is supplied. It never writes to storage.
 
 4. **Read** the resolved lexicon:
 
@@ -84,7 +88,7 @@ This walkthrough demonstrates the simplest usage of the Localizer before diving 
    console.log(localizer.lexicon.greeting);
    ```
 
-   - Expected output: `Hallo`
+   With the explicit `"de"` language above, the output is `Hallo`.
 
 5. **Listen** for language changes:
 
@@ -94,30 +98,40 @@ This walkthrough demonstrates the simplest usage of the Localizer before diving 
    };
    ```
 
-6. **Update** the language imperatively:
+6. **Update** the language directly:
 
    ```js
    localizer.setLanguage("en");
    console.log(localizer.lexicon.greeting);
    ```
 
-   - Expected output: `Hello`
+   The output is `Hello`.
 
-7. **Optionally sync** with application-level language changes:
+7. **Optionally synchronize** with application configuration messages:
 
    ```js
    localizer.initialize();
 
-   window.dispatchEvent(
-     new CustomEvent("onappconfigchange", {
-       detail: { language: "de" },
-     }),
-   );
+   const configuration = new BroadcastChannel(Channel.CONFIGURATION);
+
+   configuration.postMessage({
+     type: Gesture.ON_APP_CONFIG_CHANGE,
+     language: "de",
+   });
    ```
 
-    This updates the Localizer's active language from the global event.
+   The Localizer receives the message asynchronously and updates its language. Its `onlanguagechange` handler runs if the language changes.
 
-For more details on **data resolution**, **state**, **operations**, and **events**, consult the sections below or generate the API documentation with `npm run document`.
+   The sender and Localizer use separate BroadcastChannel instances with the same channel name.
+
+8. **Clean up** when the instances are no longer needed:
+
+   ```js
+   configuration.close();
+   localizer.dispose();
+   ```
+
+For more details, consult the sections below or generate the API documentation with `npm run document`.
 
 ---
 
@@ -125,48 +139,53 @@ For more details on **data resolution**, **state**, **operations**, and **events
 
 ### 3.1 Composition
 
-- **Metadata** (`localizer.meta.ts`): Defines public constants and types for data, state, operations, events, gestures, and localization bundles.
-
-- **Validation** (`localizer.validation.ts`): Enforces the declared value domains at runtime through a single `Validate` class. `Validate.language` accepts a string and `Validate.localizations` accepts a record of bundles; anything else throws `Invalid <name> value: <value>`.
-
-- **Class** (`localizer.ts`): Implements the EventTarget-based Localizer, including language normalization, lexicon resolution, event dispatch, and application event integration.
-
+- **Metadata** (`localizer.meta.ts`): Defines public constants and types for channels, data, state, operations, events, gestures, and localization bundles.
+- **Validation** (`localizer.validation.ts`): Validates language values, the localization container, and constructor options.
+- **Class** (`localizer.ts`): Implements language normalization, lexicon resolution, local event dispatch, and BroadcastChannel integration.
 - **Entry Point** (`index.ts`): Re-exports the Localizer and its public metadata surface.
 
-> **Separation of Concerns**
->
-> - **Metadata** for shared names and contracts
-> - **Validation** for runtime enforcement of those contracts
-> - **TypeScript** for runtime behavior
-> - **Tests** for public API verification
+Responsibilities are divided between:
+
+- **Metadata** for shared names and contracts
+- **Validation** for runtime input checks
+- **Class implementation** for runtime behavior
+- **Tests** for public API verification
 
 ### 3.2 Lifecycle
 
-The Localizer has a simple operational lifecycle:
+#### Construction
 
-- **Construction**
+1. Validates and stores the localization bundles.
+2. Normalizes and validates the options. A bare string becomes `{ language }`.
+3. Resolves the initial language from the explicit option, configured storage key, or browser language.
+4. Normalizes the initial language to its base lowercase code.
 
-1. Stores the provided localization bundles.
-2. Stores the options (a bare string is treated as `{ language }`).
-3. Seeds the language: `options.language`, else the value persisted at `options.storage`, else `navigator.language` — normalized to the base lowercase code.
+Construction does not open a BroadcastChannel or emit a language-change event.
 
-- **`initialize()`**
+#### `initialize()`
 
-1. Registers a global listener for `onappconfigchange`.
-2. Marks the instance as initialized.
+1. Opens a BroadcastChannel using `Channel.CONFIGURATION`.
+2. Registers a `"message"` listener, identified by `Gesture.MESSAGE`.
+3. Marks the instance as initialized.
 
-- **`dispose()`**
+Calling `initialize()` again while already initialized has no effect.
 
-1. Removes the global `onappconfigchange` listener.
-2. Marks the instance as no longer initialized.
+#### `dispose()`
 
-Because Localizer is not a custom element, listener management is explicit rather than tied to `connectedCallback()` or `disconnectedCallback()`.
+1. Removes the channel's message listener.
+2. Closes the Localizer's BroadcastChannel.
+3. Clears the channel reference.
+4. Marks the instance as no longer initialized.
+
+Calling `dispose()` before initialization or after disposal has no effect. Calling `initialize()` after disposal opens a new channel and resumes synchronization.
+
+The Localizer manages its own channel only. Application code must close any sender channels it creates.
+
+Listener management is explicit because the Localizer is not a custom element with `connectedCallback()` or `disconnectedCallback()` lifecycle hooks.
 
 ---
 
 ## 4. Core Concepts: Data, State, Operations, Events, and Gestures
-
-After seeing the Localizer in action, the following sections explain how it works internally.
 
 ### 4.1 Data
 
@@ -174,28 +193,60 @@ The Localizer stores language bundles in a `Localizations<T>` map keyed by langu
 
 #### 4.1.1 Definition
 
-- **`localizations`**
-- A record of language codes mapped to lexicon objects.
-- Example:
+**`localizations`**
+
+A record of language codes mapped to lexicon objects:
 
 ```ts
 type Localizations<T extends object> = Record<string, T | undefined>;
 ```
 
-- The constructor validates the record: a non-object, `null`, or array value throws `Invalid localizations value: <value>`. Bundle contents are not validated.
+The constructor requires a non-null, non-array object. Invalid containers throw:
 
-- **`options`** (`Options`, readonly)
-- The constructor options, exposed through `localizer.options`. Both fields are optional:
+```text
+Invalid localizations value: <value>
+```
+
+Individual bundle contents are not validated.
+
+The `localizations` getter exposes the supplied object. The property has no setter, but the returned object is not frozen.
+
+**`options`**
+
+The constructor accepts an options object with two optional fields:
 
 ```ts
 type Options = {
-  language?: string; // explicit initial language; wins over storage
-  storage?: string; // localStorage key holding the persisted language
+  language?: string;
+  storage?: string;
 };
 ```
 
-- `storage` is opt-in and has no default: without it, `localStorage` is never touched. With it, the key is read once at construction and never written — persisting the choice is the application's job. An absent or empty value, or a `localStorage` that throws (cookies / site data blocked, sandboxed frame), falls through to the browser language.
-- A non-object value throws `Invalid options value: <value>`; a non-string field throws `Invalid options value: <field> is invalid`.
+- `language` specifies the initial language and takes precedence over storage.
+- `storage` specifies the `localStorage` key containing a persisted language.
+
+Storage access is optional:
+
+- Without a configured storage key, the Localizer does not read `localStorage`.
+- With an explicit language, storage is not read.
+- Otherwise, the configured key is read once during construction.
+- An absent or empty stored value falls back to the browser language.
+- If storage access throws, the Localizer falls back to the browser language.
+- The Localizer never writes to storage.
+
+A non-object, `null`, or array options value throws:
+
+```text
+Invalid options value: <value>
+```
+
+A defined `language` or `storage` field that is not a string throws:
+
+```text
+Invalid options value: <field> is invalid
+```
+
+The `options` getter exposes the options object. The property has no setter, but the returned object is not frozen. Changing that object does not rerun initialization or language resolution.
 
 #### 4.1.2 Resolution Order
 
@@ -205,36 +256,47 @@ When `lexicon` is read, the Localizer resolves bundles in this order:
 2. English (`en`)
 3. The first available bundle
 
-If no bundle exists, the Localizer throws an error.
+If no bundle is available, it throws:
+
+```text
+Localizer: no localization bundles are available.
+```
 
 ### 4.2 State
 
-The Localizer exposes two key state concepts: the active language and the resolved lexicon.
+The Localizer exposes the active language and its resolved lexicon.
 
 #### 4.2.1 Definition
 
-- **`language`** (`string`)
-  - The active language used for lexicon lookup.
-  - Seeded once at construction, in this order: `options.language`, else the value persisted at `localStorage[options.storage]` (when `storage` is configured and holds a value), else `navigator.language`.
-  - The seed is normalized to the base lowercase language: `en-US` becomes `en`, `nl-NL` becomes `nl`. Seeding does not emit `onlanguagechange`.
-  - Later assignments through `language` or `setLanguage()` are stored as provided.
-  - Falsy assignments are ignored; a non-string value throws `Invalid language value: <value>`.
+**`language`** (`string`)
 
-- **`lexicon`** (`T`)
-  - The resolved bundle for the current language.
-  - Falls back to English or the first available bundle when necessary.
+- Holds the active language used for lexicon lookup.
+- Is seeded at construction from:
+  1. `options.language`
+  2. The persisted value at `options.storage`
+  3. `navigator.language`
+- The initial value is normalized to its base lowercase code: `en-US` becomes `en`, and `nl-NL` becomes `nl`.
+- Construction does not emit `onlanguagechange`.
+- Later assignments, including updates received through BroadcastChannel, are stored as provided.
+- Falsy assignments are ignored.
+- Truthy non-string assignments throw `Invalid language value: <value>`.
+- Assigning the current language again does not emit an event.
+
+**`lexicon`** (`T`)
+
+- Returns the resolved bundle for the current language.
+- Falls back to English or the first available bundle.
+- Does not change `language` when a fallback bundle is used.
 
 #### 4.2.2 Internal vs. Resolved State
 
-1. **Internal state**
+The active language is stored internally:
 
-   ```ts
-   private _language: string;
-   ```
+```ts
+private _language: string;
+```
 
-   This stores the active language used for lookup.
-
-2. **Resolved state**
+The lexicon is resolved when accessed:
 
 ```ts
 public get lexicon(): T {
@@ -251,93 +313,197 @@ public get lexicon(): T {
 }
 ```
 
-- Keeps lookup behavior predictable even when a bundle is missing.
+For example, if `language` is `"fr"` but only an English bundle exists, `lexicon` returns the English bundle while `language` remains `"fr"`.
 
 #### 4.2.3 Usage Tips
 
-- Prefer base language codes such as `en`, `de`, and `fr` when setting `language` after construction.
-- Provide an `en` bundle if you want a stable fallback.
-- Treat `lexicon` as the primary runtime API for reading localized values.
-- Namespace the `storage` key to your application (`app.language`), or per user (`app.<userId>.language`) — `localStorage` is per origin, not per user, so a bare key like `language` would be shared by every app on the same origin.
-- Keep the Localizer read-only: the component that offers the language choice writes the key and dispatches `onappconfigchange`; the Localizer picks the change up through the gesture.
+- Use base language codes such as `en`, `de`, and `fr` for updates after construction.
+- Provide an `en` bundle if you want an English fallback.
+- Use `lexicon` to read localized values.
+- Namespace the storage key to your application, such as `app.language`, or to the current user, such as `app.<userId>.language`.
+- Let the application persist language choices and broadcast configuration messages. The Localizer reads the initial stored choice and receives subsequent messages.
 
 ### 4.3 Operations
 
-The Localizer exposes a small imperative API for lifecycle and language updates.
-
 #### 4.3.1 Definition
 
-1. `initialize()` -> register global app configuration listeners
-2. `dispose()` -> remove global app configuration listeners
-3. `setLanguage(language)` -> update the active language
+1. **`initialize()`** — opens the configuration channel and registers its message listener.
+2. **`dispose()`** — removes the listener and closes the Localizer's channel.
+3. **`setLanguage(language)`** — delegates to the `language` setter.
+
+Direct language updates work before initialization and after disposal. Initialization is required only for BroadcastChannel synchronization.
+
+Calling `setLanguage()` or assigning `language` does not broadcast a message or persist the value.
 
 #### 4.3.2 Example
 
-```ts
-public setLanguage = (language: string) => (this.language = language);
+```js
+localizer.setLanguage("de");
+```
+
+This is equivalent to:
+
+```js
+localizer.language = "de";
 ```
 
 ### 4.4 Events
 
-The Localizer emits a custom event when its active language changes.
+The Localizer emits a CustomEvent on its own EventTarget when its active language changes.
 
 #### 4.4.1 Definition
 
-- **`onlanguagechange`**: Fired when `language` changes to a new truthy value.
-- Event payload:
+**`onlanguagechange`**
 
-  ```js
-  {
-    detail: {
-      language: "de";
-    }
-  }
-  ```
+- Identified by `Event.ON_LANGUAGE_CHANGE`.
+- Fired after the active language changes to a new accepted value.
+- Contains the new language in `event.detail`.
+- Is dispatched synchronously by the language setter.
+- Is not cancelable and does not broadcast the change to other Localizers.
 
-#### 4.4.2 Usage Tips
+Example detail:
 
-- Assign a handler:
+```js
+{
+  language: "de"
+}
+```
 
-  ```js
-  localizer.onlanguagechange = (event) => {
-    console.log(event.detail.language);
-  };
-  ```
+When a BroadcastChannel message triggers the update, message delivery is asynchronous. Once the message handler assigns the language, the setter dispatches the local event synchronously.
 
-- Or use the standard EventTarget API:
+#### 4.4.2 Usage
 
-  ```js
-  localizer.addEventListener("onlanguagechange", (event) => {
-    console.log(event.detail.language);
-  });
-  ```
+Assign a handler:
 
-### 4.5 Gestures
+```js
+localizer.onlanguagechange = (event) => {
+  console.log(event.detail.language);
+};
+```
 
-The Localizer integrates with one application-level gesture.
+Assigning a new handler replaces the previous handler assigned through this property. Assigning `null` removes it:
+
+```js
+localizer.onlanguagechange = null;
+```
+
+Alternatively, use the EventTarget API:
+
+```js
+const handleLanguageChange = (event) => {
+  console.log(event.detail.language);
+};
+
+localizer.addEventListener("onlanguagechange", handleLanguageChange);
+
+// Remove this listener when it is no longer needed.
+localizer.removeEventListener("onlanguagechange", handleLanguageChange);
+```
+
+`dispose()` stops BroadcastChannel synchronization. It does not remove listeners attached to the Localizer's own EventTarget.
+
+### 4.5 Gestures and BroadcastChannel Synchronization
+
+The Localizer receives application configuration messages through `Channel.CONFIGURATION`.
 
 #### 4.5.1 Definition
 
-- **`onappconfigchange`**
-  - A window-level custom event.
-  - If `detail.language` is present, the Localizer updates its active language.
-  - The event is only observed after `initialize()` has been called.
+The communication contract has three parts:
+
+- **Channel name:** `Channel.CONFIGURATION`
+- **Native channel event:** `"message"`, identified by `Gesture.MESSAGE`
+- **Payload type:** `Gesture.ON_APP_CONFIG_CHANGE`
+
+Expected message payload:
+
+```js
+{
+  type: Gesture.ON_APP_CONFIG_CHANGE,
+  language: "fr",
+}
+```
+
+The Localizer:
+
+1. Receives the payload through `message.data`.
+2. Ignores messages whose `type` does not match `Gesture.ON_APP_CONFIG_CHANGE`.
+3. Ignores messages whose `language` is falsy.
+4. Passes the language to its setter.
+
+Message producers should send an object with the expected fields and a string language value.
 
 #### 4.5.2 Example
 
 ```js
-window.dispatchEvent(
-  new CustomEvent("onappconfigchange", {
-    detail: { language: "fr" },
-  }),
+import {
+  Localizer,
+  Channel,
+  Gesture,
+} from "@scalable.software/localizer";
+
+const localizer = new Localizer(
+  {
+    en: { greeting: "Hello" },
+    fr: { greeting: "Bonjour" },
+  },
+  "en",
 );
+
+localizer.onlanguagechange = () => {
+  console.log(localizer.lexicon.greeting);
+};
+
+localizer.initialize();
+
+const configuration = new BroadcastChannel(Channel.CONFIGURATION);
+
+configuration.postMessage({
+  type: Gesture.ON_APP_CONFIG_CHANGE,
+  language: "fr",
+});
+
+// The handler logs "Bonjour" after the message is delivered.
 ```
+
+Reuse the sender channel for subsequent configuration changes. Close it when its owner is disposed:
+
+```js
+configuration.close();
+localizer.dispose();
+```
+
+#### 4.5.3 Delivery Behavior
+
+- BroadcastChannel delivers messages asynchronously.
+- Participating instances must use the same channel name and compatible same-origin storage contexts.
+- A sending BroadcastChannel instance does not receive its own message. Other connected instances can receive it, including instances in the same page.
+- Messages sent before the Localizer creates its channel are not replayed when it initializes.
+- A disposed Localizer no longer receives channel messages.
+- Multiple initialized Localizers can receive the same configuration message.
+- The Localizer does not forward received messages back to the channel.
+
+#### 4.5.4 Persisting a Language Choice
+
+The application can persist the choice and announce it using the same language value:
+
+```js
+const configuration = new BroadcastChannel(Channel.CONFIGURATION);
+
+const selectLanguage = (language) => {
+  localStorage.setItem("app.language", language);
+
+  configuration.postMessage({
+    type: Gesture.ON_APP_CONFIG_CHANGE,
+    language,
+  });
+};
+```
+
+Handle storage-write failures according to your application's requirements. The Localizer's fallback handling applies only to its own storage reads.
 
 ---
 
 ## 5. Development Workflow
-
-Below is a recommended workflow for building, testing, documenting, and publishing the Localizer package.
 
 ### 5.1 From Specifications to Implementation
 
@@ -347,13 +513,54 @@ Below is a recommended workflow for building, testing, documenting, and publishi
 
 ### 5.2 Testing
 
-- Unit tests use Karma + Jasmine.
-- Coverage includes data storage, state changes, lexicon fallback, operations, events, and global gesture handling.
-- Run tests with:
+Unit tests use Karma + Jasmine.
+
+Coverage includes:
+
+- Constructor options and initial language resolution
+- Storage reads and fallback behavior
+- Language updates and lexicon resolution
+- Language-change events
+- Initialization and disposal
+- BroadcastChannel message handling
+- Ignored message types
+- Repeated initialization and disposal
+- Absence of storage writes
+
+Run tests with:
 
 ```bash
 npm test
 ```
+
+BroadcastChannel tests must wait for delivery before asserting the resulting state. An immediate assertion after `postMessage()` may run before the Localizer receives the message.
+
+When testing a language change, register the event listener before posting:
+
+```ts
+const changed = new Promise<void>((resolve) => {
+  localizer.addEventListener(
+    Event.ON_LANGUAGE_CHANGE,
+    () => resolve(),
+    { once: true },
+  );
+});
+
+configuration.postMessage({
+  type: Gesture.ON_APP_CONFIG_CHANGE,
+  language: "de",
+});
+
+await changed;
+
+expect(localizer.language).toBe("de");
+```
+
+This example assumes the Localizer is initialized and starts with a different language.
+
+For tests that expect no language-change event, use the suite's asynchronous delivery helper rather than waiting for an event that should not fire.
+
+Close sender channels and dispose Localizers during test cleanup.
 
 ### 5.3 Demo
 
@@ -363,7 +570,7 @@ Run the demo locally with:
 npm run serve
 ```
 
-- The demo provides a minimal browser example using the public package import.
+The demo provides a browser example using the public package import.
 
 ### 5.4 Documentation
 
@@ -373,7 +580,7 @@ Generate API documentation with:
 npm run document
 ```
 
-- This builds the docs from TypeScript annotations.
+This builds the API documentation from TypeScript annotations.
 
 ### 5.5 Publishing & Versioning
 
@@ -383,12 +590,16 @@ npm run document
    npm run build
    ```
 
-   - Outputs the distributable package to `dist/`.
+   Outputs the distributable package to `dist/`.
 
-2. **Bump version**
+2. **Bump the version**
+
+   Choose the appropriate command:
 
    ```bash
-   npm version [major|minor|patch]
+   npm version patch
+   npm version minor
+   npm version major
    ```
 
 3. **Publish**
@@ -402,28 +613,30 @@ npm run document
 ## 6. Best Practices & Extensibility
 
 1. **Keep bundles small**
-   - Store only the localized values needed by the consuming component or view.
+   - Store the localized values needed by the consuming component or view.
 
-2. **Normalize consistently**
-   - Use base language codes such as `en`, `de`, and `fr` for predictable lookups.
+2. **Use consistent language codes**
+   - Use base codes such as `en`, `de`, and `fr` for updates after construction.
 
 3. **Provide fallbacks deliberately**
-   - Include an English bundle when you want stable fallback behavior.
+   - Include an English bundle when you want English fallback behavior.
 
-4. **Manage listeners explicitly**
-   - Call `initialize()` only when you need app-level synchronization.
-   - Call `dispose()` when the Localizer instance is no longer needed.
+4. **Manage channels explicitly**
+   - Call `initialize()` when application-level synchronization is needed.
+   - Call `dispose()` when synchronization is no longer needed.
+   - Close application-owned sender channels separately.
 
-5. **Test public behavior**
-   - Verify language changes, fallback resolution, and emitted event payloads rather than internal implementation details.
+5. **Keep persistence in the application**
+   - Let the language-selection component write the stored choice and broadcast the update.
+   - Configure each Localizer with the appropriate storage key for its initial value.
 
----
+6. **Account for asynchronous delivery**
+   - React to `onlanguagechange` when updating UI after a broadcast.
+   - Wait for message processing in tests before asserting state.
 
-## 7. Conclusion
-
-The Localizer provides a compact, explicit localization primitive for Scalable.Software projects. By combining predictable bundle resolution, a small imperative API, and optional synchronization with application configuration changes, it keeps localization behavior easy to test and easy to integrate.
-
-Follow the development workflow for testing, documentation, and publishing to maintain a stable public API as the package evolves.
+7. **Test public behavior**
+   - Verify language changes, fallback resolution, and emitted event payloads.
+   - Include lifecycle tests for initialization, disposal, and repeated calls.
 
 ---
 

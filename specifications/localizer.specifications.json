@@ -1,7 +1,7 @@
 {
   "Component": "Localizer",
   "Package": "localizer",
-  "Description": "The Localizer is a utility class that stores localized bundles, resolves the active localization from the current language, listens to global application configuration changes, and emits an event when the language changes. It is an EventTarget-based utility rather than a custom element: it declares no Composition or Tag, and its single gesture is named after the window event it listens to (`onappconfigchange`) rather than after a user interaction.",
+  "Description": "The Localizer is a utility class that stores localized bundles, resolves the active localization from the current language, receives application configuration changes on a BroadcastChannel, and emits an event when the language changes. It is an EventTarget-based add-on rather than a custom element: it declares no Composition or Tag, and its gestures are named after the channel event it listens to (`message`) and the application configuration change that message carries (`onappconfigchange`) rather than after a user interaction.",
   "Data": {
     "localizations": {
       "type": "Localizations<T>",

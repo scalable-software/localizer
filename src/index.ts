@@ -7,7 +7,12 @@ export {
   Channel
 } from "./localizer.meta.js";
 
-export type { Language, Localizations, Options } from "./localizer.meta.js";
+export type {
+  Configuration,
+  Language,
+  Localizations,
+  Options,
+} from "./localizer.meta.js";
 
 export { Validate } from "./localizer.validation.js";
 

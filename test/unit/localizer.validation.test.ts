@@ -413,6 +413,33 @@ validation(Channel.CONFIGURATION, () => {
           });
         });
       });
+
+      and("`value` is `{ type: Gesture.ON_APP_CONFIG_CHANGE, coding: \"ICD10\" }`", () => {
+        let value: unknown;
+        beforeEach(() => {
+          value = { type: Gesture.ON_APP_CONFIG_CHANGE, coding: "ICD10" };
+        });
+
+        when("`Validate.configuration(value)` is called", () => {
+          let error: unknown | undefined;
+          let result: any;
+          beforeEach(() => {
+            try {
+              result = Validate.configuration(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("result is `false`", () => {
+            expect(result).toBe(false);
+          });
+        });
+      });
     });
   });
 });

@@ -81,6 +81,12 @@
       ]
     }
   },
+  "Channels": {
+    "configuration": {
+      "name": "app.configuration",
+      "description": "The BroadcastChannel on which application configuration changes are announced. The channel is shared: other senders post on it and messages may carry fields the Localizer does not read. A BroadcastChannel reaches every same-origin context, so a change announced in one tab reaches the Localizers in every open tab. The Localizer opens its own instance in `initialize()` and closes it in `dispose()`; it never posts on the channel."
+    }
+  },
   "Gestures": {
     "onappconfigchange": {
       "description": "A window-level custom event used to synchronize the Localizer with application configuration changes. Observed only after `initialize()` has been called and until `dispose()`. The event `detail` may carry an optional `language` string.",

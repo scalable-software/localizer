@@ -152,22 +152,27 @@ export class Localizer<T extends object> extends EventTarget {
   }
 
   /**
-   * Register global listeners required to keep the localizer in sync
+   * Open the configuration channel and register the listeners required to
+   * keep the localizer in sync
    * @category Operations
    */
   public initialize = () => {
     if (this._initialized) return;
+    this._channel = new BroadcastChannel(Channel.CONFIGURATION);
     this._addEventListeners();
     this._initialized = true;
   };
 
   /**
-   * Remove global listeners previously registered by `initialize()`
+   * Remove the listeners registered by `initialize()` and close the
+   * configuration channel
    * @category Operations
    */
   public dispose = () => {
     if (!this._initialized) return;
     this._removeEventListeners();
+    this._channel?.close();
+    this._channel = null;
     this._initialized = false;
   };
 
@@ -183,21 +188,16 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Lifecycle
    * @hidden
    */
-  protected _addEventListeners = () => {
-    this._channel = new BroadcastChannel(Channel.CONFIGURATION);
-    this._channel.addEventListener(Gesture.MESSAGE, this._handleMessage);
-  };
+  protected _addEventListeners = () =>
+    this._channel?.addEventListener(Gesture.MESSAGE, this._handleMessage);
 
   /**
    * Remove listeners for application-level configuration changes
    * @category Lifecycle
    * @hidden
    */
-  protected _removeEventListeners = () => {
+  protected _removeEventListeners = () =>
     this._channel?.removeEventListener(Gesture.MESSAGE, this._handleMessage);
-    this._channel?.close();
-    this._channel = null;
-  };
 
   /**
    * Dispatches a CustomEvent from the component with its detail
@@ -219,9 +219,11 @@ export class Localizer<T extends object> extends EventTarget {
    * @category Gesture
    * @hidden
    */
-  private _handleMessage = (message: MessageEvent<unknown>): void => {
-    if (!Validate.configuration(message.data)) return;
-    this.language = message.data.language;
+  private _handleMessage = ({ data }: MessageEvent<unknown>): void => {
+    const valid = Validate.configuration(data);
+    if (!valid) return;
+
+    this.language = data.language;
   };
 
   /**

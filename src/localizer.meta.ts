@@ -5,7 +5,6 @@
  */
 export const Data = {
   LOCALIZATIONS: "localizations",
-  OPTIONS: "options",
 } as const;
 
 /**

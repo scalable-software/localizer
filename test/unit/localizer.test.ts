@@ -76,44 +76,6 @@ data(Data.LOCALIZATIONS, () => {
   });
 });
 
-data(Data.OPTIONS, () => {
-  given("Localizer instantiated", () => {
-    let localizer: Localizer<object>;
-    beforeEach(() => {
-      localizer = new Localizer({});
-    });
-
-    then("`localizer.options` getter exists", () => {
-      expect(localizer.options).toBeDefined();
-    });
-
-    and("`localizer.options` getter exists", () => {
-      then("`localizer.options` is `{}`", () => {
-        expect(localizer.options).toEqual({});
-      });
-    });
-  });
-
-  given("Localizer instantiated with `null` as options", () => {
-    let error: Error;
-    beforeEach(() => {
-      try {
-        new Localizer({}, null as unknown as Options);
-      } catch (err) {
-        error = err as Error;
-      }
-    });
-
-    then("an error is thrown", () => {
-      expect(error).toBeDefined();
-    });
-
-    then("error message is `Invalid options value: null`", () => {
-      expect(error.message).toBe("Invalid options value: null");
-    });
-  });
-});
-
 state(State.LANGUAGE, () => {
   given("Localizer instantiated", () => {
     let localizer: Localizer<object>;
@@ -460,6 +422,25 @@ state(State.LANGUAGE, () => {
 
     then("error message is `Invalid options value: de`", () => {
       expect(error.message).toBe("Invalid options value: de");
+    });
+  });
+
+  given("Localizer instantiated with `null` as options", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Localizer({}, null as unknown as Options);
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("an error is thrown", () => {
+      expect(error).toBeDefined();
+    });
+
+    then("error message is `Invalid options value: null`", () => {
+      expect(error.message).toBe("Invalid options value: null");
     });
   });
 });

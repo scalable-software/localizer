@@ -39,13 +39,6 @@ export class Localizer<T extends object> extends EventTarget {
   private _localizations: Localizations<T> = {};
 
   /**
-   * Constructor options: explicit initial language and persisted-language storage key
-   * @category Data
-   * @hidden
-   */
-  private _options: Options = {};
-
-  /**
    * BroadcastChannel for inter-component communication
    * @category Channel
    * @hidden
@@ -61,9 +54,7 @@ export class Localizer<T extends object> extends EventTarget {
     super();
 
     this._localizations = Validate.localizations(localizations);
-    this._options = Validate.options(options);
-
-    const language = this._normalizeLanguage(this._options);
+    const language = this._normalizeLanguage(Validate.options(options));
     this._language = Validate.language(language);
   }
 
@@ -96,14 +87,6 @@ export class Localizer<T extends object> extends EventTarget {
    */
   public get localizations(): Localizations<T> {
     return this._localizations;
-  }
-
-  /**
-   * Get the constructor options the localizer was created with
-   * @category Data
-   */
-  public get options(): Options {
-    return this._options;
   }
 
   /**

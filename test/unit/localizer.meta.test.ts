@@ -23,10 +23,6 @@ metadata(Metadata.DATA, () => {
         then("`Data.LOCALIZATIONS` exists", () => {
           expect(Data.LOCALIZATIONS).toBeDefined();
         });
-
-        then("`Data.OPTIONS` exists", () => {
-          expect(Data.OPTIONS).toBeDefined();
-        });
       });
     });
   });

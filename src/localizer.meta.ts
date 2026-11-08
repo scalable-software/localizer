@@ -89,6 +89,7 @@ export type Gesture = (typeof Gesture)[keyof typeof Gesture];
  * @enum
  */
 export const Channel = {
+  CONFIGURATION: "configuration",
 } as const;
 
 /**

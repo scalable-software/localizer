@@ -2,6 +2,7 @@
  * @module Localizer
  */
 
+import { Gesture } from "./localizer.meta.js";
 import type {
   Configuration,
   Language,
@@ -76,5 +77,8 @@ export class Validate {
    */
   public static configuration = (
     value: unknown,
-  ): value is Configuration & { language: Language } => false;
+  ): value is Configuration & { language: Language } => {
+    const { type } = value as Record<string, unknown>;
+    return type === Gesture.ON_APP_CONFIG_CHANGE;
+  };
 }

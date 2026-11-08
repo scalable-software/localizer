@@ -75,6 +75,7 @@ export type Event = (typeof Event)[keyof typeof Event];
  */
 export const Gesture = {
   ON_APP_CONFIG_CHANGE: "onappconfigchange",
+  MESSAGE: "message",
 } as const;
 
 /**
@@ -89,7 +90,7 @@ export type Gesture = (typeof Gesture)[keyof typeof Gesture];
  * @enum
  */
 export const Channel = {
-  CONFIGURATION: "configuration",
+  CONFIGURATION: "app.configuration",
 } as const;
 
 /**

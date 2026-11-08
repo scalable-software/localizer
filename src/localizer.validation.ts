@@ -2,11 +2,7 @@
  * @module Localizer
  */
 
-import {
-  type Language,
-  type Localizations,
-  type Options,
-} from "./localizer.meta.js";
+import type { Language, Localizations, Options } from "./localizer.meta.js";
 
 /**
  * Runtime enforcement of the value domains declared in `localizer.meta.ts`
@@ -23,6 +19,7 @@ export class Validate {
     if (!valid) {
       throw new Error(`Invalid language value: ${value}`);
     }
+    
     return value as Language;
   };
 
@@ -31,14 +28,13 @@ export class Validate {
    * Throws if the value is not a non-null, non-array object.
    * @category Validation
    */
-  public static localizations = <T extends object>(
-    value: Localizations<T>,
-  ) => {
+  public static localizations = <T extends object>(value: Localizations<T>) => {
     const valid =
       typeof value === "object" && value !== null && !Array.isArray(value);
     if (!valid) {
       throw new Error(`Invalid localizations value: ${value}`);
     }
+
     return value as Localizations<T>;
   };
 

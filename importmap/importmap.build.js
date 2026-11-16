@@ -7,8 +7,6 @@ inject(
   {
     imports: {
       "@scalable.software/localizer": "../dist/index.js",
-      "@scalable.software/component":
-        "../node_modules/@scalable.software/component/dist/index.js",
     },
   },
   "importmap",

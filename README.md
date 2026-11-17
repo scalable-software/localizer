@@ -57,6 +57,12 @@ The Localizer extends **EventTarget**. It keeps language resolution explicit whi
    } from "@scalable.software/localizer";
    ```
 
+   The metadata (`Data`, `State`, `Operation`, `Event`, `Gesture`, `Channel` and their types) is also importable on its own as `@scalable.software/localizer/meta`. It needs neither the DOM nor the `Localizer` class:
+
+   ```js
+   import { Channel, Gesture } from "@scalable.software/localizer/meta";
+   ```
+
 2. **Define** localization bundles:
 
    ```js

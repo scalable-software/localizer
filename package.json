@@ -8,6 +8,10 @@
   "exports": {
     ".": {
       "import": "./dist/index.js"
+    },
+    "./meta": {
+      "types": "./dist/localizer.meta.d.ts",
+      "default": "./dist/localizer.meta.js"
     }
   },
   "types": "dist/index.d.ts",
